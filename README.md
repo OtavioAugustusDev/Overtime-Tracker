@@ -66,7 +66,7 @@ source C:\Users\SeuUsuario\caminho\para\o\projeto\init.sql
 
 ## Compilação e Execução
 
-1. Apartir do Code::Blocks, abra o arquivo `Overtime Tracker.cbp` no Code::Blocks
+1. Abra o arquivo `Overtime Tracker.cbp` no Code::Blocks
 2. Compile o projeto: `Ctrl + F9`
 3. Aguarde a mensagem de sucesso na saída
 4. Execute o programa: `Ctrl + F10`
