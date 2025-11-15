@@ -29,9 +29,6 @@ O sistema exibe uma tela de autenticação que solicita nome de usuário e senha
 3. **MySQL Server**
    - [Download aqui](https://dev.mysql.com/downloads/windows/installer/8.0.html)
 
-4. **MSYS2** (para dependências GTK4)
-   - [Download aqui](https://www.msys2.org/)
-
 > **Observação**: Instale todos os programas nos diretórios padrão. Caso contrário, será necessário configurar os caminhos manualmente na IDE.
 
 ## Instalação das Dependências
