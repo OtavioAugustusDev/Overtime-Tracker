@@ -46,7 +46,7 @@ pacman -S mingw-w64-x86_64-glade
 pacman -Syu
 ```
 
-Verifique se instalação correu bem executando o seguinte comando no terminal **MSYS2 MINGW64**:
+Ao final, verifique se a instalação correu bem executando o seguinte comando no terminal **MSYS2 MINGW64**:
 
 ```bash
 pkg-config --cflags gtk4
