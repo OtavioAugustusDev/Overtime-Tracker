@@ -1,5 +1,8 @@
 # Overtime-Tracker
 
+# Funcionamento (atual)
+Exibe um menu de autenticação que recebe o nome e a senha do utilizador, se os campos de inserção estiverem vazios ou as credenciais não forem encontrados nos banco de dados, exibe um erro. Caso o usuário exista de fato, fecha a janela e termina o programa.
+
 # Como construir
 
 ## Pré-requisitos
@@ -33,6 +36,8 @@ Se uma mensagem de erro aparecer, refaça os passos acima novamente
 ```
 source C:\Users\OtavioAugustus\<caminho para o arquivo>\init.sql
 ```
+
+Apartir de agora o programa estará apto a ser executado, o usuário padrão é "admin" "1234".
 
 ## Compilação
 1. Abra o arquivo "Overtime Tracker.cdp" com a IDE CODE::BLOCKS
