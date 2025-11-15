@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Overtime Tracker" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Release">
+				<Option output="bin/Release/Overtime Tracker" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="`pkg-config --cflags gtk4`" />
+					<Add directory="C:/Program Files/MySQL/MySQL Server 8.0/include" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="`pkg-config --libs gtk4`" />
+					<Add directory="C:/Program Files/MySQL/MySQL Server 8.0/lib" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Linker>
+			<Add library="../../../../Program Files/MySQL/MySQL Server 8.0/lib/abseil_dll.lib" />
+			<Add library="../../../../Program Files/MySQL/MySQL Server 8.0/lib/libmysql.lib" />
+			<Add library="../../../../Program Files/MySQL/MySQL Server 8.0/lib/libprotobuf-lite.lib" />
+			<Add library="../../../../Program Files/MySQL/MySQL Server 8.0/lib/mysqlclient.lib" />
+			<Add library="../../../../Program Files/MySQL/MySQL Server 8.0/lib/mysqlharness_stdx.lib" />
+			<Add library="../../../../Program Files/MySQL/MySQL Server 8.0/lib/mysqlharness_tls.lib" />
+			<Add library="../../../../Program Files/MySQL/MySQL Server 8.0/lib/mysqlrouter_connection_pool.lib" />
+			<Add library="../../../../Program Files/MySQL/MySQL Server 8.0/lib/mysqlrouter_destination_status.lib" />
+			<Add library="../../../../Program Files/MySQL/MySQL Server 8.0/lib/mysqlrouter_http.lib" />
+			<Add library="../../../../Program Files/MySQL/MySQL Server 8.0/lib/mysqlrouter_http_auth_backend.lib" />
+			<Add library="../../../../Program Files/MySQL/MySQL Server 8.0/lib/mysqlrouter_http_auth_realm.lib" />
+			<Add library="../../../../Program Files/MySQL/MySQL Server 8.0/lib/mysqlrouter_io_component.lib" />
+			<Add library="../../../../Program Files/MySQL/MySQL Server 8.0/lib/mysqlrouter_lib.lib" />
+			<Add library="../../../../Program Files/MySQL/MySQL Server 8.0/lib/mysqlrouter_metadata_cache.lib" />
+			<Add library="../../../../Program Files/MySQL/MySQL Server 8.0/lib/mysqlrouter_mysqlxmessages.lib" />
+			<Add library="../../../../Program Files/MySQL/MySQL Server 8.0/lib/mysqlrouter_routing.lib" />
+		</Linker>
+		<Unit filename="src/main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Extensions>
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
