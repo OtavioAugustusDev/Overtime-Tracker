@@ -32,7 +32,7 @@ Se uma mensagem de erro aparecer, refaça os passos acima novamente
 3. Pressione Ctrl. + F10 para executar
 
 # Como executar
-Baixe o lançamento mais recente [aqui](.)
+Baixe o lançamento mais recente [aqui](https://github.com/OtavioAugustusDev/Overtime-Tracker/releases)
 
 # Literatura
 Como instalar um compilador para C: https://syntaxpathways.com/set-up-c-development-environment/
