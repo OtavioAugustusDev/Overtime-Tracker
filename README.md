@@ -2,26 +2,19 @@
 
 Sistema gerenciador de horas extras desenvolvido em C com interface gráfica GTK4 e banco de dados MySQL.
 
-## Status
+## Sobre
 
-### Funcionalidades Implementadas
-- Sistema de autenticação de usuários
-- Conexão com banco de dados MySQL
-- Interface gráfica com GTK4
-- Validação de campos vazios
-- Verificação de credenciais no banco de dados
-
-### Comportamento Atual
 O sistema exibe uma tela de autenticação que solicita nome de usuário e senha. Ao submeter:
-- **Se os campos estiverem vazios**: Exibe mensagem de erro
-- **Se as credenciais forem inválidas**: Exibe mensagem de erro
-- **Se as credenciais forem válidas**: Fecha a janela de login e encerra (próxima etapa: abrir painel principal)
+- **Se os campos estiverem vazios**: Exibe mensagem de erro;
+- **Se as credenciais forem inválidas**: Exibe mensagem de erro;
+- **Se as credenciais forem válidas**: Fecha a janela de login e encerra.
 
-### Próximos Passos
-- Implementar painel principal após login
-- Cadastro de horas extras
-- Relatórios e consultas
-- Gestão de usuários
+### Funcionalidades
+- Sistema de autenticação de usuários;
+- Conexão com banco de dados MySQL;
+- Interface gráfica com GTK4;
+- Validação de campos vazios;
+- Verificação de credenciais no banco de dados.
 
 ## Configuração do Ambiente de Desenvolvimento
 
@@ -65,8 +58,6 @@ No terminal **MSYS2 MINGW64**
 
 > **Observação**: Caso o comando não seja encontrado, repita os passos de instalação novamente.
 
----
-
 ## Configuração do Banco de Dados
 
 1. Abra o **MySQL Command Line Client**
@@ -87,6 +78,12 @@ source C:\Users\SeuUsuario\caminho\para\o\projeto\init.sql
 - **Usuário**: `admin`
 - **Senha**: `1234`
 
+### TO-DO
+- Implementar painel principal após login
+- Cadastro de horas extras
+- Relatórios e consultas
+- Gestão de usuários
+
 ## Referências
 
 - [Instalação do GNU COMPILER COLLECTION](https://syntaxpathways.com/set-up-c-development-environment/)
@@ -95,9 +92,3 @@ source C:\Users\SeuUsuario\caminho\para\o\projeto\init.sql
 - [Instalação das dependências de compilação do GTK4](https://www.treinaweb.com.br/blog/criando-uma-aplicacao-c-com-gtk-no-codeblocks/)
 - [Documentação da biblioteca GTK4](https://docs.gtk.org/gtk4/)
 - [Utilização da linha do comando do Cliente MySQL](https://www.treinaweb.com.br/blog/primeiros-passos-com-mysql)
-
-
-## Sobre
-
-- Projeto Integrador da [Universidade Vila Velha](uvv.br).
-- Disciplina de Programação de Computadores
