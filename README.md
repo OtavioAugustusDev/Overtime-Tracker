@@ -26,8 +26,16 @@ pkg-config --cflags gtk4
 ```
 Se uma mensagem de erro aparecer, refaça os passos acima novamente
 
+## Conexão com o banco de dados
+1. Execute o terminal de comando do Cliente do MySQL "MySQL Command Line Client"
+2. Autentique-se com sua senha de usuário "root"
+3. Execute o arquivo "init.sql" para construir o banco de dados seguindo o comando:
+```
+source C:\Users\OtavioAugustus\<caminho para o arquivo>\init.sql
+```
+
 ## Compilação
-1. Abra o arquivo 'OvertimeTracker.cdp' com a IDE CODE::BLOCKS
+1. Abra o arquivo "Overtime Tracker.cdp" com a IDE CODE::BLOCKS
 2. Pressione Ctrl. + F9 para compilar e aguarde a saída indicar sucesso
 3. Pressione Ctrl. + F10 para executar
 
@@ -40,7 +48,9 @@ Como instalar um compilador para C: https://syntaxpathways.com/set-up-c-developm
 Como instalar as dependências necessárias para compilar a biblioteca GTK: https://www.treinaweb.com.br/blog/criando-interfaces-graficas-no-c-com-gtk/
 
 Como configurar uma IDE para trabalhar com MySQL e GTK:
-https://www.treinaweb.com.br/blog/utilizando-o-mysql-em-uma-aplicacao-c/
-https://www.treinaweb.com.br/blog/criando-uma-aplicacao-c-com-gtk-no-codeblocks/
+* https://www.treinaweb.com.br/blog/utilizando-o-mysql-em-uma-aplicacao-c/
+* https://www.treinaweb.com.br/blog/criando-uma-aplicacao-c-com-gtk-no-codeblocks/
 
 Como construir janelas com GTK4: https://docs.gtk.org/gtk4/
+
+Como utilizar a linha de comando do MySQL: https://www.treinaweb.com.br/blog/primeiros-passos-com-mysql
