@@ -536,26 +536,43 @@ static void refresh_users_list(GtkWidget* list_box, MYSQL* socket)
     while ((row = mysql_fetch_row(result))) {
         GtkWidget* user_row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
 
-        char info[128];
-        snprintf(info, sizeof(info), "ID: %s | Nome: %s", row[0], row[1]);
+        GtkWidget* info_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
 
-        GtkWidget* label = gtk_label_new(info);
-        gtk_widget_set_halign(label, GTK_ALIGN_START);
-        gtk_box_append(GTK_BOX(user_row), label);
+        char id_text[32];
+        snprintf(id_text, sizeof(id_text), "ID: %s", row[0]);
+        GtkWidget* label_id = gtk_label_new(id_text);
+        gtk_widget_add_css_class(label_id, "dim-label");
+        gtk_widget_set_halign(label_id, GTK_ALIGN_START);
 
-        GtkWidget* edit_button = gtk_button_new_with_label("✏️ Editar");
+        char name_text[64];
+        snprintf(name_text, sizeof(name_text), "%s", row[1]);
+        GtkWidget* label_name = gtk_label_new(name_text);
+        gtk_widget_add_css_class(label_name, "heading");
+        gtk_widget_set_halign(label_name, GTK_ALIGN_START);
+
+        gtk_box_append(GTK_BOX(info_box), label_name);
+        gtk_box_append(GTK_BOX(info_box), label_id);
+
+        gtk_box_append(GTK_BOX(user_row), info_box);
+
+        GtkWidget* button_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+        gtk_widget_set_halign(button_box, GTK_ALIGN_END);
+        gtk_widget_set_hexpand(button_box, TRUE);
+
+        GtkWidget* edit_button = gtk_button_new_with_label("Editar");
         gtk_widget_add_css_class(edit_button, "pill");
         g_object_set_data(G_OBJECT(edit_button), "user_id", GINT_TO_POINTER(atoi(row[0])));
         g_signal_connect(edit_button, "clicked", G_CALLBACK(on_edit_user_clicked), list_box);
-        gtk_box_append(GTK_BOX(user_row), edit_button);
+        gtk_box_append(GTK_BOX(button_box), edit_button);
 
-        GtkWidget* delete_button = gtk_button_new_with_label("🗑️ Excluir");
+        GtkWidget* delete_button = gtk_button_new_with_label("Excluir");
         gtk_widget_add_css_class(delete_button, "pill");
         gtk_widget_add_css_class(delete_button, "destructive-action");
         g_object_set_data(G_OBJECT(delete_button), "user_id", GINT_TO_POINTER(atoi(row[0])));
         g_signal_connect(delete_button, "clicked", G_CALLBACK(on_delete_user_clicked), list_box);
-        gtk_box_append(GTK_BOX(user_row), delete_button);
+        gtk_box_append(GTK_BOX(button_box), delete_button);
 
+        gtk_box_append(GTK_BOX(user_row), button_box);
         gtk_box_append(GTK_BOX(list_box), user_row);
     }
 
@@ -642,28 +659,63 @@ static void on_create_user_clicked(GtkWidget* widget, gpointer data)
 
     GtkWidget* content = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
     GtkWidget* grid = gtk_grid_new();
-    gtk_grid_set_row_spacing(GTK_GRID(grid), 10);
-    gtk_grid_set_column_spacing(GTK_GRID(grid), 10);
+    gtk_grid_set_row_spacing(GTK_GRID(grid), 25);   // espaçamento maior entre linhas
+    gtk_grid_set_column_spacing(GTK_GRID(grid), 20); // espaçamento maior entre colunas
+
+    // margem geral do grid
+    gtk_widget_set_margin_top(grid, 20);
+    gtk_widget_set_margin_bottom(grid, 20);
+    gtk_widget_set_margin_start(grid, 20);
+    gtk_widget_set_margin_end(grid, 20);
+
     gtk_box_append(GTK_BOX(content), grid);
 
+    // Nome
+    GtkWidget* label_name = gtk_label_new("Nome de usuário:");
+    gtk_widget_set_halign(label_name, GTK_ALIGN_START);
+    gtk_grid_attach(GTK_GRID(grid), label_name, 0, 0, 1, 1);
+
     GtkWidget* entry_name = gtk_entry_new();
-    gtk_entry_set_placeholder_text(GTK_ENTRY(entry_name), "Nome de usuário");
-    gtk_grid_attach(GTK_GRID(grid), entry_name, 0, 0, 1, 1);
+    gtk_entry_set_placeholder_text(GTK_ENTRY(entry_name), "Digite o nome");
+    gtk_widget_set_margin_top(entry_name, 5);
+    gtk_widget_set_margin_bottom(entry_name, 5);
+    gtk_grid_attach(GTK_GRID(grid), entry_name, 1, 0, 1, 1);
+
+    // Senha
+    GtkWidget* label_pass = gtk_label_new("Senha:");
+    gtk_widget_set_halign(label_pass, GTK_ALIGN_START);
+    gtk_grid_attach(GTK_GRID(grid), label_pass, 0, 1, 1, 1);
 
     GtkWidget* entry_pass = gtk_entry_new();
-    gtk_entry_set_placeholder_text(GTK_ENTRY(entry_pass), "Senha");
+    gtk_entry_set_placeholder_text(GTK_ENTRY(entry_pass), "Digite a senha");
     gtk_entry_set_visibility(GTK_ENTRY(entry_pass), FALSE);
-    gtk_grid_attach(GTK_GRID(grid), entry_pass, 0, 1, 1, 1);
+    gtk_widget_set_margin_top(entry_pass, 5);
+    gtk_widget_set_margin_bottom(entry_pass, 5);
+    gtk_grid_attach(GTK_GRID(grid), entry_pass, 1, 1, 1, 1);
+
+    // Cargo
+    GtkWidget* label_role = gtk_label_new("Cargo:");
+    gtk_widget_set_halign(label_role, GTK_ALIGN_START);
+    gtk_grid_attach(GTK_GRID(grid), label_role, 0, 2, 1, 1);
 
     GtkWidget* entry_role = gtk_combo_box_text_new();
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(entry_role), "USER");
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(entry_role), "GESTOR");
     gtk_combo_box_set_active(GTK_COMBO_BOX(entry_role), 0);
-    gtk_grid_attach(GTK_GRID(grid), entry_role, 0, 2, 1, 1);
+    gtk_widget_set_margin_top(entry_role, 5);
+    gtk_widget_set_margin_bottom(entry_role, 5);
+    gtk_grid_attach(GTK_GRID(grid), entry_role, 1, 2, 1, 1);
+
+    // Horas semanais
+    GtkWidget* label_hours = gtk_label_new("Horas semanais:");
+    gtk_widget_set_halign(label_hours, GTK_ALIGN_START);
+    gtk_grid_attach(GTK_GRID(grid), label_hours, 0, 3, 1, 1);
 
     GtkWidget* entry_hours = gtk_spin_button_new_with_range(1, 80, 1);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(entry_hours), 40);
-    gtk_grid_attach(GTK_GRID(grid), entry_hours, 0, 3, 1, 1);
+    gtk_widget_set_margin_top(entry_hours, 5);
+    gtk_widget_set_margin_bottom(entry_hours, 5);
+    gtk_grid_attach(GTK_GRID(grid), entry_hours, 1, 3, 1, 1);
 
     g_signal_connect(dialog, "response", G_CALLBACK(on_create_user_response), list_box);
     gtk_window_present(GTK_WINDOW(dialog));
@@ -724,29 +776,64 @@ static void on_edit_user_clicked(GtkWidget* widget, gpointer data)
 
     GtkWidget* content = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
     GtkWidget* grid = gtk_grid_new();
-    gtk_grid_set_row_spacing(GTK_GRID(grid), 10);
-    gtk_grid_set_column_spacing(GTK_GRID(grid), 10);
+    gtk_grid_set_row_spacing(GTK_GRID(grid), 25);   // espaçamento maior entre linhas
+    gtk_grid_set_column_spacing(GTK_GRID(grid), 20); // espaçamento maior entre colunas
+
+    // margem geral do grid
+    gtk_widget_set_margin_top(grid, 20);
+    gtk_widget_set_margin_bottom(grid, 20);
+    gtk_widget_set_margin_start(grid, 20);
+    gtk_widget_set_margin_end(grid, 20);
+
     gtk_box_append(GTK_BOX(content), grid);
+
+    // Nome
+    GtkWidget* label_name = gtk_label_new("Nome:");
+    gtk_widget_set_halign(label_name, GTK_ALIGN_START);
+    gtk_grid_attach(GTK_GRID(grid), label_name, 0, 0, 1, 1);
 
     GtkWidget* entry_name = gtk_entry_new();
     gtk_editable_set_text(GTK_EDITABLE(entry_name), current_name);
-    gtk_grid_attach(GTK_GRID(grid), entry_name, 0, 0, 1, 1);
+    gtk_widget_set_margin_top(entry_name, 5);
+    gtk_widget_set_margin_bottom(entry_name, 5);
+    gtk_grid_attach(GTK_GRID(grid), entry_name, 1, 0, 1, 1);
+
+    // Senha
+    GtkWidget* label_pass = gtk_label_new("Senha:");
+    gtk_widget_set_halign(label_pass, GTK_ALIGN_START);
+    gtk_grid_attach(GTK_GRID(grid), label_pass, 0, 1, 1, 1);
 
     GtkWidget* entry_pass = gtk_entry_new();
     gtk_editable_set_text(GTK_EDITABLE(entry_pass), current_pass);
     gtk_entry_set_visibility(GTK_ENTRY(entry_pass), FALSE);
-    gtk_grid_attach(GTK_GRID(grid), entry_pass, 0, 1, 1, 1);
+    gtk_widget_set_margin_top(entry_pass, 5);
+    gtk_widget_set_margin_bottom(entry_pass, 5);
+    gtk_grid_attach(GTK_GRID(grid), entry_pass, 1, 1, 1, 1);
+
+    // Cargo
+    GtkWidget* label_role = gtk_label_new("Cargo:");
+    gtk_widget_set_halign(label_role, GTK_ALIGN_START);
+    gtk_grid_attach(GTK_GRID(grid), label_role, 0, 2, 1, 1);
 
     GtkWidget* entry_role = gtk_combo_box_text_new();
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(entry_role), "USER");
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(entry_role), "GESTOR");
     gtk_combo_box_set_active(GTK_COMBO_BOX(entry_role),
                              strcmp(current_role, "GESTOR") == 0 ? 1 : 0);
-    gtk_grid_attach(GTK_GRID(grid), entry_role, 0, 2, 1, 1);
+    gtk_widget_set_margin_top(entry_role, 5);
+    gtk_widget_set_margin_bottom(entry_role, 5);
+    gtk_grid_attach(GTK_GRID(grid), entry_role, 1, 2, 1, 1);
+
+    // Horas de trabalho
+    GtkWidget* label_hours = gtk_label_new("Horas semanais:");
+    gtk_widget_set_halign(label_hours, GTK_ALIGN_START);
+    gtk_grid_attach(GTK_GRID(grid), label_hours, 0, 3, 1, 1);
 
     GtkWidget* entry_hours = gtk_spin_button_new_with_range(1, 80, 1);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(entry_hours), current_hours);
-    gtk_grid_attach(GTK_GRID(grid), entry_hours, 0, 3, 1, 1);
+    gtk_widget_set_margin_top(entry_hours, 5);
+    gtk_widget_set_margin_bottom(entry_hours, 5);
+    gtk_grid_attach(GTK_GRID(grid), entry_hours, 1, 3, 1, 1);
 
     g_object_set_data(G_OBJECT(dialog), "user_id", GINT_TO_POINTER(user_id));
 
