@@ -13,7 +13,7 @@
 #define WINDOW_HEIGHT 500
 
 // Propriedades do banco de dados
-#define DATABASE_ADDRESS "26.23.50.127"
+#define DATABASE_ADDRESS "localhost"
 #define DATABASE_USER "root"
 #define DATABASE_PASSWORD "1234"
 #define DATABASE_NAME "pineapple"
@@ -21,6 +21,7 @@
 
 // Consultas
 #define BUFFER_SIZE 1024
+#define SYSTEM_LOCK_TIME 18
 
 // Aplicativo
 #define APP_ID "dev.otavio.overtime-tracker"
@@ -37,6 +38,7 @@ typedef struct {
     char username[100];
     double overtime_hours;
     double work_hours;
+    char role[10]; // "USER" ou "GESTOR"
 } User;
 
 // Variáveis da tela de autenticação
@@ -131,7 +133,7 @@ void load_user_data(MYSQL* socket, int user_id, User* user)
 {
     char query[BUFFER_SIZE];
     snprintf(query, BUFFER_SIZE,
-             "SELECT id, username, overtime_hours, work_hours FROM users WHERE id=%d",
+             "SELECT id, username, overtime_hours, work_hours, role FROM users WHERE id=%d",
              user_id);
 
     mysql_query(socket, query);
@@ -144,16 +146,17 @@ void load_user_data(MYSQL* socket, int user_id, User* user)
         strncpy(user->username, row[1], 99);
         user->overtime_hours = atof(row[2]);
         user->work_hours = atof(row[3]);
+        strncpy(user->role, row[4], 9);
     }
 
     mysql_free_result(result);
 }
+
 static void on_navigation_button_clicked(GtkWidget* button, gpointer stack)
 {
     const char* page_name = g_object_get_data(G_OBJECT(button), "stack-child-name");
     gtk_stack_set_visible_child_name(GTK_STACK(stack), page_name);
 }
-
 static gboolean refresh_tracking_list(gpointer data)
 {
     Tracking_data* tracking_data = (Tracking_data*)data;
@@ -180,6 +183,7 @@ static gboolean refresh_tracking_list(gpointer data)
     if (mysql_num_rows(result) == 0)
     {
         GtkWidget* empty_label = gtk_label_new("Você ainda não fez nenhum requerimento.");
+        gtk_widget_add_css_class(empty_label, "dim-label");
         gtk_box_append(GTK_BOX(tracking_data->list_container), empty_label);
     }
     else
@@ -187,23 +191,53 @@ static gboolean refresh_tracking_list(gpointer data)
         MYSQL_ROW row;
         while ((row = mysql_fetch_row(result)))
         {
-            GtkWidget* card = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
-            gtk_widget_set_margin_start(card, 10);
-            gtk_widget_set_margin_end(card, 10);
-            gtk_widget_set_margin_top(card, 10);
-            gtk_widget_set_margin_bottom(card, 10);
+            // Card container
+            GtkWidget* card = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
+            gtk_widget_set_margin_start(card, 12);
+            gtk_widget_set_margin_end(card, 12);
+            gtk_widget_set_margin_top(card, 8);
+            gtk_widget_set_margin_bottom(card, 8);
+            gtk_widget_add_css_class(card, "card");
 
-            char info_text[500];
-            snprintf(info_text, 500,
-                    "Data: %s | Horas: %s | Status: %s\nObservações: %s",
-                    row[1], row[2], row[4], row[3]);
+            // Cabeçalho com data e status
+            GtkWidget* header_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+            char date_text[64];
+            snprintf(date_text, sizeof(date_text), "%s", row[1]);
+            GtkWidget* date_label = gtk_label_new(date_text);
+            gtk_widget_set_halign(date_label, GTK_ALIGN_START);
+            gtk_widget_add_css_class(date_label, "heading");
+            gtk_box_append(GTK_BOX(header_box), date_label);
 
-            GtkWidget* info_label = gtk_label_new(info_text);
-            gtk_widget_set_halign(info_label, GTK_ALIGN_START);
-            gtk_label_set_wrap(GTK_LABEL(info_label), TRUE);
-            gtk_box_append(GTK_BOX(card), info_label);
+            char status_text[64];
+            snprintf(status_text, sizeof(status_text), "Status: %s", row[4]);
+            GtkWidget* status_label = gtk_label_new(status_text);
+            gtk_widget_set_halign(status_label, GTK_ALIGN_END);
+            gtk_widget_add_css_class(status_label, "dim-label");
+            gtk_box_append(GTK_BOX(header_box), status_label);
 
+            gtk_box_append(GTK_BOX(card), header_box);
+
+            // Horas
+            char hours_text[64];
+            snprintf(hours_text, sizeof(hours_text), "Horas solicitadas: %s", row[2]);
+            GtkWidget* hours_label = gtk_label_new(hours_text);
+            gtk_widget_set_halign(hours_label, GTK_ALIGN_START);
+            gtk_box_append(GTK_BOX(card), hours_label);
+
+            // Observações
+            if (strlen(row[3]) > 0)
+            {
+                char notes_text[256];
+                snprintf(notes_text, sizeof(notes_text), "Observações: %s", row[3]);
+                GtkWidget* notes_label = gtk_label_new(notes_text);
+                gtk_widget_set_halign(notes_label, GTK_ALIGN_START);
+                gtk_label_set_wrap(GTK_LABEL(notes_label), TRUE);
+                gtk_box_append(GTK_BOX(card), notes_label);
+            }
+
+            // Linha separadora
             gtk_box_append(GTK_BOX(card), gtk_separator_new(GTK_ORIENTATION_HORIZONTAL));
+
             gtk_box_append(GTK_BOX(tracking_data->list_container), card);
         }
     }
@@ -211,6 +245,17 @@ static gboolean refresh_tracking_list(gpointer data)
     mysql_free_result(result);
 
     return G_SOURCE_CONTINUE; // Continuar chamando a função
+}
+
+// Função auxiliar para verificar se o sistema está fechado
+static gboolean is_system_closed()
+{
+    // Exemplo: sistema fecha às 18h
+    GDateTime* now = g_date_time_new_now_local();
+    int hour = g_date_time_get_hour(now);
+    g_date_time_unref(now);
+
+    return (hour >= SYSTEM_LOCK_TIME); // fechado a partir das 18h
 }
 
 
@@ -229,45 +274,75 @@ GtkWidget* create_dashboard_view(App_data* app_data)
     gtk_widget_add_css_class(greeting, "title-1");
     gtk_box_append(GTK_BOX(vbox), greeting);
 
-    // Card de informações
-    GtkWidget* info_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 20);
-    gtk_widget_set_margin_start(info_box, 20);
-    gtk_widget_set_margin_end(info_box, 20);
-    gtk_widget_set_margin_top(info_box, 20);
-    gtk_widget_set_margin_bottom(info_box, 20);
+    // Card com fundo cinza usando GtkFrame
+    GtkWidget* info_frame = gtk_frame_new(NULL);
+    gtk_widget_set_margin_top(info_frame, 20);
+    gtk_widget_set_margin_bottom(info_frame, 20);
+    gtk_widget_set_margin_start(info_frame, 10);
+    gtk_widget_set_margin_end(info_frame, 10);
+    gtk_widget_set_hexpand(info_frame, TRUE);
+    gtk_widget_set_vexpand(info_frame, FALSE);
 
-    char overtime_text[200];
-    snprintf(overtime_text, 200, "⏰ Horas Extras: %.2f horas", app_data->user.overtime_hours);
+    GtkWidget* info_card = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_widget_set_margin_top(info_card, 20);
+    gtk_widget_set_margin_bottom(info_card, 20);
+    gtk_widget_set_margin_start(info_card, 20);
+    gtk_widget_set_margin_end(info_card, 20);
+    gtk_frame_set_child(GTK_FRAME(info_frame), info_card);
+
+    // Rótulo discreto
+    GtkWidget* label_title = gtk_label_new("Saldo no banco de horas:");
+    gtk_widget_set_halign(label_title, GTK_ALIGN_CENTER);
+    gtk_widget_add_css_class(label_title, "dim-label");
+    gtk_box_append(GTK_BOX(info_card), label_title);
+
+    // Valor principal
+    char overtime_text[100];
+    snprintf(overtime_text, sizeof(overtime_text), "%.1f horas", app_data->user.overtime_hours);
     GtkWidget* overtime_label = gtk_label_new(overtime_text);
-    gtk_widget_set_halign(overtime_label, GTK_ALIGN_START);
-    gtk_widget_add_css_class(overtime_label, "body");
-    gtk_box_append(GTK_BOX(info_box), overtime_label);
+    gtk_widget_set_halign(overtime_label, GTK_ALIGN_CENTER);
+    gtk_widget_add_css_class(overtime_label, "title-1");
+    gtk_box_append(GTK_BOX(info_card), overtime_label);
 
-    char workhours_text[200];
-    snprintf(workhours_text, 200, "📅 Carga Horária Semanal: %.2f horas", app_data->user.work_hours);
+    // Subtítulo
+    char workhours_text[100];
+    snprintf(workhours_text, sizeof(workhours_text), "Carga Horária Semanal: %.1f horas", app_data->user.work_hours);
     GtkWidget* workhours_label = gtk_label_new(workhours_text);
-    gtk_widget_set_halign(workhours_label, GTK_ALIGN_START);
-    gtk_widget_add_css_class(workhours_label, "body");
-    gtk_box_append(GTK_BOX(info_box), workhours_label);
+    gtk_widget_set_halign(workhours_label, GTK_ALIGN_CENTER);
+    gtk_widget_add_css_class(workhours_label, "dim-label");
+    gtk_box_append(GTK_BOX(info_card), workhours_label);
 
-    gtk_box_append(GTK_BOX(vbox), info_box);
+    gtk_box_append(GTK_BOX(vbox), info_frame);
 
     // Botões de navegação
     GtkWidget* button_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
     gtk_widget_set_halign(button_box, GTK_ALIGN_CENTER);
 
-    GtkWidget* request_button = gtk_button_new_with_label("📝 Solicitar Folga");
-    gtk_widget_add_css_class(request_button, "pill");
-    gtk_widget_add_css_class(request_button, "suggested-action");
+    GtkWidget* request_button;
+
+    // Verificar condições
+    if (app_data->user.overtime_hours <= 0) {
+        request_button = gtk_button_new_with_label("Sem saldo de horas extras");
+        gtk_widget_set_sensitive(request_button, FALSE);
+    }
+    else if (is_system_closed()) {
+        request_button = gtk_button_new_with_label("Sistema fechado para requerimentos");
+        gtk_widget_set_sensitive(request_button, FALSE);
+    }
+    else {
+        request_button = gtk_button_new_with_label("📝 Novo requerimento");
+        gtk_widget_add_css_class(request_button, "pill");
+        gtk_widget_add_css_class(request_button, "suggested-action");
+        g_object_set_data(G_OBJECT(request_button), "stack-child-name", "request");
+        g_signal_connect(request_button, "clicked", G_CALLBACK(on_navigation_button_clicked), app_data->stack);
+    }
+
     gtk_box_append(GTK_BOX(button_box), request_button);
-
-    g_object_set_data(G_OBJECT(request_button), "stack-child-name", "request");
-    g_signal_connect(request_button, "clicked", G_CALLBACK(on_navigation_button_clicked), app_data->stack);
-
     gtk_box_append(GTK_BOX(vbox), button_box);
 
+
     // Título da seção de requerimentos
-    GtkWidget* section_title = gtk_label_new("📋 Meus Requerimentos");
+    GtkWidget* section_title = gtk_label_new("Seus requerimentos");
     gtk_widget_add_css_class(section_title, "title-2");
     gtk_box_append(GTK_BOX(vbox), section_title);
 
@@ -292,7 +367,12 @@ GtkWidget* create_dashboard_view(App_data* app_data)
     return vbox;
 }
 
-
+// Função auxiliar para trocar de tela após o delay
+static gboolean go_to_dashboard(gpointer stack)
+{
+    gtk_stack_set_visible_child_name(GTK_STACK(stack), "dashboard");
+    return G_SOURCE_REMOVE; // Executa uma vez só
+}
 
 
 static void on_submit_request(GtkWidget* widget, gpointer data)
@@ -348,6 +428,7 @@ static void on_submit_request(GtkWidget* widget, gpointer data)
 
     if (mysql_query(req_data->app_data->socket, query) == 0)
     {
+        // Após enviar com sucesso
         gtk_label_set_text(GTK_LABEL(req_data->output_label),
                           "Requerimento enviado com sucesso!");
 
@@ -358,6 +439,9 @@ static void on_submit_request(GtkWidget* widget, gpointer data)
 
         gtk_range_set_value(GTK_RANGE(req_data->hours_input), 0);
         gtk_text_buffer_set_text(buffer, "", -1);
+
+        // Voltar automaticamente para a tela principal após 500ms
+        g_timeout_add(500, go_to_dashboard, req_data->app_data->stack);
     }
     else
     {
@@ -458,42 +542,447 @@ GtkWidget* create_request_view(App_data* app_data)
     return vbox;
 }
 
-void create_main_window(GtkApplication* app, MYSQL* socket, int user_id)
+int get_pending_requests_count(MYSQL* socket)
 {
-    // Preparar dados do app
-    App_data* app_data = g_malloc(sizeof(App_data));
-    app_data->socket = socket;
-    load_user_data(socket, user_id, &app_data->user);
+    const char* query = "SELECT COUNT(*) FROM time_off_requests WHERE status='PENDENTE'";
+    if (mysql_query(socket, query) != 0) return 0;
 
-    // Janela principal
-    GtkWidget* window = create_window(app, WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT);
-    app_data->window = window;
+    MYSQL_RES* result = mysql_store_result(socket);
+    MYSQL_ROW row = mysql_fetch_row(result);
 
-    // Box principal
-    GtkWidget* main_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-    gtk_window_set_child(GTK_WINDOW(window), main_box);
+    int count = 0;
+    if (row) count = atoi(row[0]);
 
-    // Stack para trocar entre telas
-    GtkWidget* stack = gtk_stack_new();
-    gtk_stack_set_transition_type(GTK_STACK(stack), GTK_STACK_TRANSITION_TYPE_SLIDE_LEFT_RIGHT);
-    gtk_stack_set_transition_duration(GTK_STACK(stack), 200);
-    app_data->stack = stack;
-
-    // Adicionar páginas ao stack
-    gtk_stack_add_named(GTK_STACK(stack), create_dashboard_view(app_data), "dashboard");
-    gtk_stack_add_named(GTK_STACK(stack), create_request_view(app_data), "request");
-
-    // Adicionar stack diretamente ao main_box
-    gtk_box_append(GTK_BOX(main_box), stack);
-    gtk_widget_set_vexpand(stack, TRUE);
-
-    // Exibir janela
-    gtk_window_present(GTK_WINDOW(window));
+    mysql_free_result(result);
+    return count;
 }
 
 
 
 
+
+
+
+// Protótipos
+static void refresh_users_list(GtkWidget* list_box, MYSQL* socket);
+static void on_delete_user_clicked(GtkWidget* widget, gpointer data);
+static void on_edit_user_clicked(GtkWidget* widget, gpointer data);
+static void on_create_user_clicked(GtkWidget* widget, gpointer data);
+GtkWidget* create_manage_users_view(App_data* app_data);
+
+
+
+
+
+
+
+
+
+
+
+
+static void refresh_users_list(GtkWidget* list_box, MYSQL* socket)
+{
+    // Limpar lista atual
+    GtkWidget* child = gtk_widget_get_first_child(list_box);
+    while (child != NULL) {
+        GtkWidget* next = gtk_widget_get_next_sibling(child);
+        gtk_box_remove(GTK_BOX(list_box), child);
+        child = next;
+    }
+
+    // Buscar usuários
+    const char* query = "SELECT id, username FROM users ORDER BY id ASC";
+    mysql_query(socket, query);
+    MYSQL_RES* result = mysql_store_result(socket);
+
+    MYSQL_ROW row;
+    while ((row = mysql_fetch_row(result))) {
+        GtkWidget* user_row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+
+        char info[128];
+        snprintf(info, sizeof(info), "ID: %s | Nome: %s", row[0], row[1]);
+
+        GtkWidget* label = gtk_label_new(info);
+        gtk_widget_set_halign(label, GTK_ALIGN_START);
+        gtk_box_append(GTK_BOX(user_row), label);
+
+        // Dentro de refresh_users_list, ao criar o botão Editar:
+        GtkWidget* edit_button = gtk_button_new_with_label("✏️ Editar");
+        gtk_widget_add_css_class(edit_button, "pill");
+        g_object_set_data(G_OBJECT(edit_button), "user_id", GINT_TO_POINTER(atoi(row[0])));
+        g_signal_connect(edit_button, "clicked", G_CALLBACK(on_edit_user_clicked), list_box);
+        gtk_box_append(GTK_BOX(user_row), edit_button);
+
+
+        // Botão excluir
+        GtkWidget* delete_button = gtk_button_new_with_label("🗑️ Excluir");
+        gtk_widget_add_css_class(delete_button, "pill");
+        gtk_widget_add_css_class(delete_button, "destructive-action");
+        g_object_set_data(G_OBJECT(delete_button), "user_id", GINT_TO_POINTER(atoi(row[0])));
+        g_signal_connect(delete_button, "clicked", G_CALLBACK(on_delete_user_clicked), list_box);
+        gtk_box_append(GTK_BOX(user_row), delete_button);
+
+        gtk_box_append(GTK_BOX(list_box), user_row);
+    }
+
+    mysql_free_result(result);
+}
+
+
+
+static void on_create_user_response(GtkDialog* dialog, int response_id, gpointer data)
+{
+    GtkWidget* list_box = GTK_WIDGET(data);  // <- agora existe
+    App_data* app_data = g_object_get_data(G_OBJECT(list_box), "app_data");
+
+    if (response_id == GTK_RESPONSE_OK) {
+        // recuperar widgets do diálogo
+        GtkWidget* content = gtk_dialog_get_content_area(dialog);
+        GtkWidget* grid = gtk_widget_get_first_child(content);
+
+        GtkWidget* entry_name  = gtk_grid_get_child_at(GTK_GRID(grid), 0, 0);
+        GtkWidget* entry_pass  = gtk_grid_get_child_at(GTK_GRID(grid), 0, 1);
+        GtkWidget* entry_role  = gtk_grid_get_child_at(GTK_GRID(grid), 0, 2);
+        GtkWidget* entry_hours = gtk_grid_get_child_at(GTK_GRID(grid), 0, 3);
+
+        const char* name = gtk_editable_get_text(GTK_EDITABLE(entry_name));
+        const char* pass = gtk_editable_get_text(GTK_EDITABLE(entry_pass));
+        const char* role = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(entry_role));
+        int hours = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(entry_hours));
+
+        char query[BUFFER_SIZE];
+        snprintf(query, BUFFER_SIZE,
+                 "INSERT INTO users (username, password, role, work_hours) "
+                 "VALUES ('%s', '%s', '%s', %d)",
+                 name, pass, role, hours);
+
+        mysql_query(app_data->socket, query);
+        refresh_users_list(list_box, app_data->socket);
+    }
+
+    gtk_window_destroy(GTK_WINDOW(dialog));
+}
+
+
+static void on_edit_user_response(GtkDialog* dialog, int response_id, gpointer data)
+{
+    GtkWidget* list_box = GTK_WIDGET(data);
+    App_data* app_data = g_object_get_data(G_OBJECT(list_box), "app_data");
+
+    if (response_id == GTK_RESPONSE_OK) {
+        GtkWidget* content = gtk_dialog_get_content_area(dialog);
+        GtkWidget* grid = gtk_widget_get_first_child(content);
+
+        GtkWidget* entry_name  = gtk_grid_get_child_at(GTK_GRID(grid), 0, 0);
+        GtkWidget* entry_pass  = gtk_grid_get_child_at(GTK_GRID(grid), 0, 1);
+        GtkWidget* entry_role  = gtk_grid_get_child_at(GTK_GRID(grid), 0, 2);
+        GtkWidget* entry_hours = gtk_grid_get_child_at(GTK_GRID(grid), 0, 3);
+
+        const char* name = gtk_editable_get_text(GTK_EDITABLE(entry_name));
+        const char* pass = gtk_editable_get_text(GTK_EDITABLE(entry_pass));
+        const char* role = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(entry_role));
+        int hours = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(entry_hours));
+
+        int user_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "user_id"));
+
+        char query[BUFFER_SIZE];
+        snprintf(query, BUFFER_SIZE,
+                 "UPDATE users SET username='%s', password='%s', role='%s', work_hours=%d WHERE id=%d",
+                 name, pass, role, hours, user_id);
+
+        mysql_query(app_data->socket, query);
+        refresh_users_list(list_box, app_data->socket);
+    }
+
+    gtk_window_destroy(GTK_WINDOW(dialog));
+}
+
+
+// Função para abrir o diálogo
+static void on_create_user_clicked(GtkWidget* widget, gpointer data)
+{
+    GtkWidget* list_box = GTK_WIDGET(data);
+    App_data* app_data = g_object_get_data(G_OBJECT(list_box), "app_data");
+
+    GtkWidget* dialog = gtk_dialog_new_with_buttons(
+        "Criar novo usuário",
+        GTK_WINDOW(app_data->window),
+        GTK_DIALOG_MODAL,
+        "Cancelar", GTK_RESPONSE_CANCEL,
+        "Criar", GTK_RESPONSE_OK,
+        NULL);
+
+    GtkWidget* content = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+    GtkWidget* grid = gtk_grid_new();
+    gtk_grid_set_row_spacing(GTK_GRID(grid), 10);
+    gtk_grid_set_column_spacing(GTK_GRID(grid), 10);
+    gtk_box_append(GTK_BOX(content), grid);
+
+    GtkWidget* entry_name = gtk_entry_new();
+    gtk_entry_set_placeholder_text(GTK_ENTRY(entry_name), "Nome de usuário");
+    gtk_grid_attach(GTK_GRID(grid), entry_name, 0, 0, 1, 1);
+
+    GtkWidget* entry_pass = gtk_entry_new();
+    gtk_entry_set_placeholder_text(GTK_ENTRY(entry_pass), "Senha");
+    gtk_entry_set_visibility(GTK_ENTRY(entry_pass), FALSE);
+    gtk_grid_attach(GTK_GRID(grid), entry_pass, 0, 1, 1, 1);
+
+    GtkWidget* entry_role = gtk_combo_box_text_new();
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(entry_role), "USER");
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(entry_role), "GESTOR");
+    gtk_combo_box_set_active(GTK_COMBO_BOX(entry_role), 0);
+    gtk_grid_attach(GTK_GRID(grid), entry_role, 0, 2, 1, 1);
+
+    GtkWidget* entry_hours = gtk_spin_button_new_with_range(1, 80, 1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(entry_hours), 40);
+    gtk_grid_attach(GTK_GRID(grid), entry_hours, 0, 3, 1, 1);
+
+    // Conectar callback e mostrar
+    g_signal_connect(dialog, "response", G_CALLBACK(on_create_user_response), list_box);
+    gtk_window_present(GTK_WINDOW(dialog));
+}
+
+// Excluir usuário
+static void on_delete_user_clicked(GtkWidget* widget, gpointer data)
+{
+    GtkWidget* list_box = GTK_WIDGET(data);
+    int user_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "user_id"));
+
+    char query[BUFFER_SIZE];
+    snprintf(query, BUFFER_SIZE, "DELETE FROM users WHERE id=%d", user_id);
+
+    MYSQL* socket = ((App_data*)g_object_get_data(G_OBJECT(list_box), "app_data"))->socket;
+    mysql_query(socket, query);
+
+    refresh_users_list(list_box, socket);
+}
+
+// Abre o diálogo de edição e pré-carrega dados do usuário
+static void on_edit_user_clicked(GtkWidget* widget, gpointer data)
+{
+    // Recupera o list_box passado no g_signal_connect
+    GtkWidget* list_box = GTK_WIDGET(data);
+    App_data* app_data = g_object_get_data(G_OBJECT(list_box), "app_data");
+    MYSQL* socket = app_data->socket;
+
+    // ID do usuário associado ao botão Editar
+    int user_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "user_id"));
+
+    // Buscar dados atuais do usuário
+    char query[BUFFER_SIZE];
+    snprintf(query, BUFFER_SIZE,
+             "SELECT username, password, role, work_hours FROM users WHERE id=%d",
+             user_id);
+
+    if (mysql_query(socket, query) != 0) {
+        // opcional: log de erro
+        return;
+    }
+
+    MYSQL_RES* result = mysql_store_result(socket);
+    MYSQL_ROW row = mysql_fetch_row(result);
+    if (!row) {
+        mysql_free_result(result);
+        return;
+    }
+
+    const char* current_name  = row[0];
+    const char* current_pass  = row[1];
+    const char* current_role  = row[2];
+    int current_hours         = atoi(row[3]);
+    mysql_free_result(result);
+
+    // Diálogo de edição
+    GtkWidget* dialog = gtk_dialog_new_with_buttons(
+        "Editar usuário",
+        GTK_WINDOW(app_data->window),  // janela pai para modal correto
+        GTK_DIALOG_MODAL,
+        "Cancelar", GTK_RESPONSE_CANCEL,
+        "Salvar",   GTK_RESPONSE_OK,
+        NULL
+    );
+
+    GtkWidget* content = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+    GtkWidget* grid = gtk_grid_new();
+    gtk_grid_set_row_spacing(GTK_GRID(grid), 10);
+    gtk_grid_set_column_spacing(GTK_GRID(grid), 10);
+    gtk_box_append(GTK_BOX(content), grid);
+
+    // Nome
+    GtkWidget* entry_name = gtk_entry_new();
+    gtk_editable_set_text(GTK_EDITABLE(entry_name), current_name);
+    gtk_grid_attach(GTK_GRID(grid), entry_name, 0, 0, 1, 1);
+
+    // Senha
+    GtkWidget* entry_pass = gtk_entry_new();
+    gtk_editable_set_text(GTK_EDITABLE(entry_pass), current_pass);
+    gtk_entry_set_visibility(GTK_ENTRY(entry_pass), FALSE);
+    gtk_grid_attach(GTK_GRID(grid), entry_pass, 0, 1, 1, 1);
+
+    // Tipo (role)
+    GtkWidget* entry_role = gtk_combo_box_text_new();
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(entry_role), "USER");
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(entry_role), "GESTOR");
+    gtk_combo_box_set_active(GTK_COMBO_BOX(entry_role),
+                             strcmp(current_role, "GESTOR") == 0 ? 1 : 0);
+    gtk_grid_attach(GTK_GRID(grid), entry_role, 0, 2, 1, 1);
+
+    // Carga horária
+    GtkWidget* entry_hours = gtk_spin_button_new_with_range(1, 80, 1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(entry_hours), current_hours);
+    gtk_grid_attach(GTK_GRID(grid), entry_hours, 0, 3, 1, 1);
+
+    // Guardar o user_id no próprio diálogo para uso no callback de resposta
+    g_object_set_data(G_OBJECT(dialog), "user_id", GINT_TO_POINTER(user_id));
+
+    // Conectar callback de resposta e apresentar
+    g_signal_connect(dialog, "response", G_CALLBACK(on_edit_user_response), list_box);
+    gtk_window_present(GTK_WINDOW(dialog));
+}
+
+
+GtkWidget* create_manage_users_view(App_data* app_data)
+{
+    GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 15);
+    gtk_widget_set_margin_start(vbox, 20);
+    gtk_widget_set_margin_end(vbox, 20);
+    gtk_widget_set_margin_top(vbox, 20);
+    gtk_widget_set_margin_bottom(vbox, 20);
+
+    // Botão Voltar
+    GtkWidget* back_button = gtk_button_new_with_label("← Voltar");
+    gtk_widget_add_css_class(back_button, "pill");
+    gtk_widget_set_halign(back_button, GTK_ALIGN_START);
+    g_object_set_data(G_OBJECT(back_button), "stack-child-name", "dashboard");
+    g_signal_connect(back_button, "clicked", G_CALLBACK(on_navigation_button_clicked), app_data->stack);
+    gtk_box_append(GTK_BOX(vbox), back_button);
+
+    // Título
+    GtkWidget* title = gtk_label_new("Gerenciar Usuários");
+    gtk_widget_add_css_class(title, "title-1");
+    gtk_box_append(GTK_BOX(vbox), title);
+
+    // Scrolled list
+    GtkWidget* scrolled = gtk_scrolled_window_new();
+    gtk_widget_set_vexpand(scrolled, TRUE);
+    GtkWidget* list_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled), list_box);
+    gtk_box_append(GTK_BOX(vbox), scrolled);
+
+    GtkWidget* create_button = gtk_button_new_with_label("➕ Criar novo usuário");
+    gtk_widget_add_css_class(create_button, "pill");
+    gtk_widget_add_css_class(create_button, "suggested-action");
+    g_signal_connect(create_button, "clicked", G_CALLBACK(on_create_user_clicked), list_box);
+    gtk_box_append(GTK_BOX(vbox), create_button);
+
+    g_object_set_data(G_OBJECT(list_box), "app_data", app_data);
+    refresh_users_list(list_box, app_data->socket);
+
+
+    return vbox;
+}
+
+
+GtkWidget* create_manager_dashboard_view(App_data* app_data)
+{
+    GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 20);
+    gtk_widget_set_margin_start(vbox, 40);
+    gtk_widget_set_margin_end(vbox, 40);
+    gtk_widget_set_margin_top(vbox, 40);
+    gtk_widget_set_margin_bottom(vbox, 40);
+
+    // Saudação personalizada
+    char greeting_text[300];
+    snprintf(greeting_text, 300, "Olá, %s! 👋", app_data->user.username);
+    GtkWidget* greeting = gtk_label_new(greeting_text);
+    gtk_widget_add_css_class(greeting, "title-1");
+    gtk_box_append(GTK_BOX(vbox), greeting);
+
+    // Card com número de requerimentos pendentes
+    int pending_count = get_pending_requests_count(app_data->socket);
+
+    GtkWidget* info_frame = gtk_frame_new(NULL);
+    gtk_widget_set_margin_top(info_frame, 20);
+    gtk_widget_set_margin_bottom(info_frame, 20);
+    gtk_widget_set_margin_start(info_frame, 10);
+    gtk_widget_set_margin_end(info_frame, 10);
+    gtk_widget_set_hexpand(info_frame, TRUE);
+
+    GtkWidget* info_card = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_widget_set_margin_top(info_card, 20);
+    gtk_widget_set_margin_bottom(info_card, 20);
+    gtk_widget_set_margin_start(info_card, 20);
+    gtk_widget_set_margin_end(info_card, 20);
+    gtk_frame_set_child(GTK_FRAME(info_frame), info_card);
+
+    GtkWidget* label_title = gtk_label_new("Requerimentos pendentes:");
+    gtk_widget_set_halign(label_title, GTK_ALIGN_CENTER);
+    gtk_widget_add_css_class(label_title, "dim-label");
+    gtk_box_append(GTK_BOX(info_card), label_title);
+
+    char pending_text[100];
+    snprintf(pending_text, sizeof(pending_text), "%d", pending_count);
+    GtkWidget* pending_label = gtk_label_new(pending_text);
+    gtk_widget_set_halign(pending_label, GTK_ALIGN_CENTER);
+    gtk_widget_add_css_class(pending_label, "title-1");
+    gtk_box_append(GTK_BOX(info_card), pending_label);
+
+    gtk_box_append(GTK_BOX(vbox), info_frame);
+
+    // Botões de navegação (um embaixo do outro)
+    GtkWidget* button_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 15);
+    gtk_widget_set_halign(button_box, GTK_ALIGN_CENTER);
+
+    GtkWidget* manage_users_button = gtk_button_new_with_label("👥 Gerir usuários");
+    gtk_widget_add_css_class(manage_users_button, "pill");
+    gtk_widget_add_css_class(manage_users_button, "suggested-action");
+    g_object_set_data(G_OBJECT(manage_users_button), "stack-child-name", "manage_users");
+    g_signal_connect(manage_users_button, "clicked", G_CALLBACK(on_navigation_button_clicked), app_data->stack);
+    gtk_box_append(GTK_BOX(button_box), manage_users_button);
+
+    GtkWidget* manage_requests_button = gtk_button_new_with_label("📋 Gerir requerimentos");
+    gtk_widget_add_css_class(manage_requests_button, "pill");
+    gtk_widget_add_css_class(manage_requests_button, "destructive-action"); // vermelho
+    gtk_box_append(GTK_BOX(button_box), manage_requests_button);
+
+    gtk_box_append(GTK_BOX(vbox), button_box);
+
+    return vbox;
+}
+
+
+void create_main_window(GtkApplication* app, MYSQL* socket, int user_id)
+{
+    App_data* app_data = g_malloc(sizeof(App_data));
+    app_data->socket = socket;
+    load_user_data(socket, user_id, &app_data->user);
+
+    GtkWidget* window = create_window(app, WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT);
+    app_data->window = window;
+
+    GtkWidget* main_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_window_set_child(GTK_WINDOW(window), main_box);
+
+    GtkWidget* stack = gtk_stack_new();
+    gtk_stack_set_transition_type(GTK_STACK(stack), GTK_STACK_TRANSITION_TYPE_SLIDE_LEFT_RIGHT);
+    gtk_stack_set_transition_duration(GTK_STACK(stack), 200);
+    app_data->stack = stack;
+
+    if (strcmp(app_data->user.role, "GESTOR") == 0)
+    {
+        gtk_stack_add_named(GTK_STACK(stack), create_manager_dashboard_view(app_data), "dashboard");
+        gtk_stack_add_named(GTK_STACK(stack), create_manage_users_view(app_data), "manage_users");
+    } else {
+        gtk_stack_add_named(GTK_STACK(stack), create_dashboard_view(app_data), "dashboard");
+        gtk_stack_add_named(GTK_STACK(stack), create_request_view(app_data), "request");
+    }
+
+    gtk_box_append(GTK_BOX(main_box), stack);
+    gtk_widget_set_vexpand(stack, TRUE);
+
+    gtk_window_present(GTK_WINDOW(window));
+}
 
 
 
@@ -585,18 +1074,18 @@ static void login_panel(GtkApplication* app, MYSQL* socket)
     gtk_box_append(GTK_BOX(center_box), gtk_separator_new(GTK_ORIENTATION_HORIZONTAL));
 
     // Campos de entrada com labels melhoradas
-    GtkWidget* username_label = gtk_label_new("👤 Nome de Usuário");
+    GtkWidget* username_label = gtk_label_new("ID de Colaborador");
     gtk_widget_set_halign(username_label, GTK_ALIGN_START);
     gtk_widget_add_css_class(username_label, "heading");
     gtk_box_append(GTK_BOX(center_box), username_label);
 
     GtkWidget* username_input = gtk_entry_new();
-    gtk_entry_set_placeholder_text(GTK_ENTRY(username_input), "Digite seu nome de usuário");
+    gtk_entry_set_placeholder_text(GTK_ENTRY(username_input), "Digite seu ID");
     gtk_entry_set_visibility(GTK_ENTRY(username_input), TRUE);
     gtk_widget_set_size_request(username_input, -1, 40);
     gtk_box_append(GTK_BOX(center_box), username_input);
 
-    GtkWidget* password_label = gtk_label_new("🔒 Senha");
+    GtkWidget* password_label = gtk_label_new("Senha");
     gtk_widget_set_halign(password_label, GTK_ALIGN_START);
     gtk_widget_add_css_class(password_label, "heading");
     gtk_widget_set_margin_top(password_label, 10);
@@ -628,7 +1117,7 @@ static void login_panel(GtkApplication* app, MYSQL* socket)
     gtk_widget_set_margin_top(footer_box, 20);
     gtk_widget_set_halign(footer_box, GTK_ALIGN_CENTER);
 
-    GtkWidget* footer_text = gtk_label_new("Desenvolvido para gestão de horas extras");
+    GtkWidget* footer_text = gtk_label_new("Projeto Integrador @ Universidade Vila Velha");
     gtk_widget_add_css_class(footer_text, "dim-label");
     gtk_widget_add_css_class(footer_text, "caption");
     gtk_box_append(GTK_BOX(footer_box), footer_text);
