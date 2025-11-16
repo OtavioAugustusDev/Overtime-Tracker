@@ -1,37 +1,52 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
+
+// Bibliotecas externas
 #include <mysql.h>
 #include <gtk/gtk.h>
 
-// Window properties
-#define WINDOW_TITLE "Sistema de Horas Extras - Login"
+// Propriedades da janela
+#define WINDOW_TITLE "Sistema de Horas Extras"
 #define WINDOW_WIDTH 400
 #define WINDOW_HEIGHT 300
 
-// Database properties
+// Propriedades do banco de dados
 #define DATABASE_ADDRESS "localhost"
 #define DATABASE_USER "root"
 #define DATABASE_PASSWORD "1234"
 #define DATABASE_NAME "pineapple"
 #define DATABASE_PORT 3306
 
-// Output
+// Consultas
+#define BUFFER_SIZE 512
+
+// Aplicativo
+#define APP_ID "dev.otavio.overtime-tracker"
+
+// Saída
+#define CONNECTION_ERROR -3
+#define USER_NOT_FOUND -2
+#define FATAL_ERROR -1
 #define SUCCESS 0
-#define FAIL 1
 
+// Variáveis da tela de autenticação
 typedef struct {
-    GtkWidget *entry_username;
-    GtkWidget *entry_password;
-    GtkWidget *label_message;
-    GtkWidget *login_window;
-    MYSQL *socket;
-} LoginScreen;
+    GtkWidget* username_input;
+    GtkWidget* password_input;
+    GtkWidget* output_label;
+    GtkWidget* login_window;
+    MYSQL* socket;
+} Login_data;
 
-
-MYSQL *connect_to_database()
+/*
+    Estabelece conexão com o banco de dados e retorna um socket caso tenha êxito,
+    se a conexão falhar, encerra o programa.
+*/
+MYSQL* connect_to_database()
 {
-    MYSQL *socket = mysql_init(NULL);
-    MYSQL *connection = mysql_real_connect(
+    MYSQL* socket = mysql_init(NULL);
+    MYSQL* connection = mysql_real_connect(
         socket,
         DATABASE_ADDRESS,
         DATABASE_USER,
@@ -45,158 +60,120 @@ MYSQL *connect_to_database()
     {
         fprintf(stderr, "Erro ao conectar: %s\n", mysql_error(socket));
         mysql_close(socket);
-        return NULL;
+        exit(CONNECTION_ERROR);
     }
+
     return socket;
 }
 
-
-int send_query_to_database(MYSQL *socket, const char *query)
+/*
+    Escuta pressionamentos do botão de login e envia as informações inseridas
+    para o servidor caso os campos de texto não estejam vazios
+*/
+static void on_login_button_clicked(GtkWidget* widget, gpointer login_data)
 {
-    if (mysql_query(socket, query))
+    Login_data* data = login_data;
+
+    const char* username = gtk_editable_get_text(GTK_EDITABLE(data->username_input));
+    const char* password = gtk_editable_get_text(GTK_EDITABLE(data->password_input));
+
+    bool empty_fields = strlen(username) == 0 || strlen(password) == 0;
+
+    if (empty_fields)
     {
-        fprintf(stderr, "Erro na query: %s\n", mysql_error(socket));
-        return FAIL;
-    }
-    return SUCCESS;
-}
-
-
-int validate_login(MYSQL *socket, const char *username, const char *password)
-{
-    char query[512];
-    snprintf(query, sizeof(query),
-             "SELECT * FROM users WHERE username='%s' AND password='%s'",
-             username, password);
-
-    if (send_query_to_database(socket, query) == FAIL)
-        return FAIL;
-
-    MYSQL_RES *result = mysql_store_result(socket);
-    if (result == NULL)
-        return FAIL;
-
-    int num_rows = mysql_num_rows(result);
-    mysql_free_result(result);
-
-    return (num_rows > 0) ? SUCCESS : FAIL;
-}
-
-
-void open_main_window(GtkWidget *login_window)
-{
-    GtkWidget *main_window = gtk_window_new();
-    gtk_window_set_title(GTK_WINDOW(main_window), "Sistema de Horas Extras");
-    gtk_window_set_default_size(GTK_WINDOW(main_window), 800, 600);
-
-    GtkWidget *label = gtk_label_new("Bem-vindo ao Sistema de Horas Extras!");
-    gtk_window_set_child(GTK_WINDOW(main_window), label);
-
-    gtk_window_present(GTK_WINDOW(main_window));
-    gtk_window_destroy(GTK_WINDOW(login_window));
-}
-
-
-static void on_login_clicked(GtkWidget *widget, gpointer data)
-{
-    LoginScreen *login_data = (LoginScreen *)data;
-
-    const char *username = gtk_editable_get_text(GTK_EDITABLE(login_data->entry_username));
-    const char *password = gtk_editable_get_text(GTK_EDITABLE(login_data->entry_password));
-
-    if (strlen(username) == 0 || strlen(password) == 0)
-    {
-        gtk_label_set_text(GTK_LABEL(login_data->label_message),
-                          "Por favor, preencha todos os campos!");
+        gtk_label_set_text(GTK_LABEL(data->output_label), "Existem campos vazios");
         return;
     }
 
-    if (validate_login(login_data->socket, username, password) == SUCCESS)
-    {
-        gtk_label_set_text(GTK_LABEL(login_data->label_message),
-                          "Login bem-sucedido!");
-        open_main_window(login_data->login_window);
-    }
-    else
-    {
-        gtk_label_set_text(GTK_LABEL(login_data->label_message),
-                          "Usuario ou senha invalidos!");
-    }
+    char query[BUFFER_SIZE];
+    snprintf(query, BUFFER_SIZE, "SELECT * FROM users WHERE username='%s' AND password='%s'", username, password);
+
+    mysql_query(data->socket, query);
+
+    MYSQL_RES* matches = mysql_store_result(data->socket);
+    int results = mysql_num_rows(matches);
+
+    return results ? exit(SUCCESS) : gtk_label_set_text(GTK_LABEL(data->output_label), "Credenciais falsas");
 }
 
-static void create_login_window(GtkApplication *app, MYSQL *socket)
+/*
+    MID-LEVEL ABSTRACTION: Cria um campo de inserção de texto com título e placeholder
+*/
+GtkWidget* create_input_text(char* title, char* placeholder, int secret)
 {
-    GtkWidget *window = gtk_application_window_new(app);
-    gtk_window_set_title(GTK_WINDOW(window), WINDOW_TITLE);
-    gtk_window_set_default_size(GTK_WINDOW(window), WINDOW_WIDTH, WINDOW_HEIGHT);
+    GtkWidget* input_label = gtk_label_new(title);
+    gtk_widget_set_halign(input_label, GTK_ALIGN_START);
 
-    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
-    gtk_widget_set_margin_start(vbox, 20);
-    gtk_widget_set_margin_end(vbox, 20);
-    gtk_widget_set_margin_top(vbox, 20);
-    gtk_widget_set_margin_bottom(vbox, 20);
+    GtkWidget* input_text = gtk_entry_new();
+    gtk_entry_set_placeholder_text(GTK_ENTRY(input_text), placeholder);
+    gtk_entry_set_visibility(GTK_ENTRY(input_text), secret);
+
+    return input_text;
+}
+
+/*
+    MID-LEVEL ABSTRACTION: Cria e retorna uma janela pré-configurada
+*/
+GtkWidget* create_window(GtkApplication* app, char* title, int width, int height)
+{
+    GtkWidget* window = gtk_application_window_new(app);
+    gtk_window_set_title(GTK_WINDOW(window), title);
+    gtk_window_set_default_size(GTK_WINDOW(window), width, height);
+    return window;
+}
+
+/*
+    Constrói e configura uma janela de autenticação
+*/
+static void login_panel(GtkApplication* app, MYSQL* socket)
+{
+    GtkWidget* window = create_window(app, WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    GtkWidget* username_input = create_input_text("Nome:", "Insira seu nome", TRUE);
+    GtkWidget* password_input = create_input_text("Senha:", "Insira sua senha", FALSE);
+    GtkWidget* output_label = gtk_label_new("");
+    GtkWidget* button_login = gtk_button_new_with_label("Enviar");
+
+    GtkWidget* widgets[] = {username_input, password_input, output_label, button_login};
+
+    GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_window_set_child(GTK_WINDOW(window), vbox);
 
-    GtkWidget *title_label = gtk_label_new("Autenticacao de usuario");
-    gtk_widget_add_css_class(title_label, "title-1");
-    gtk_box_append(GTK_BOX(vbox), title_label);
+    for(int widget = 0; widget < (sizeof(widgets) / sizeof(*widgets)); widget++)
+    {
+        gtk_box_append(GTK_BOX(vbox), widgets[widget]);
+    }
 
-    gtk_box_append(GTK_BOX(vbox), gtk_separator_new(GTK_ORIENTATION_HORIZONTAL));
-
-    GtkWidget *label_username = gtk_label_new("Usuario:");
-    gtk_widget_set_halign(label_username, GTK_ALIGN_START);
-    gtk_box_append(GTK_BOX(vbox), label_username);
-
-    GtkWidget *entry_username = gtk_entry_new();
-    gtk_entry_set_placeholder_text(GTK_ENTRY(entry_username), "Digite seu usuario");
-    gtk_box_append(GTK_BOX(vbox), entry_username);
-
-    GtkWidget *label_password = gtk_label_new("Senha:");
-    gtk_widget_set_halign(label_password, GTK_ALIGN_START);
-    gtk_box_append(GTK_BOX(vbox), label_password);
-
-    GtkWidget *entry_password = gtk_entry_new();
-    gtk_entry_set_placeholder_text(GTK_ENTRY(entry_password), "Digite sua senha");
-    gtk_entry_set_visibility(GTK_ENTRY(entry_password), FALSE);
-    gtk_box_append(GTK_BOX(vbox), entry_password);
-
-    GtkWidget *label_message = gtk_label_new("");
-    gtk_box_append(GTK_BOX(vbox), label_message);
-
-    GtkWidget *button_login = gtk_button_new_with_label("Entrar");
-    gtk_widget_add_css_class(button_login, "suggested-action");
-    gtk_box_append(GTK_BOX(vbox), button_login);
-
-    LoginScreen *login_data = g_malloc(sizeof(LoginScreen));
-    login_data->entry_username = entry_username;
-    login_data->entry_password = entry_password;
-    login_data->label_message = label_message;
+    Login_data* login_data = malloc(sizeof(Login_data));
+    login_data->username_input = username_input;
+    login_data->password_input = password_input;
+    login_data->output_label = output_label;
     login_data->login_window = window;
     login_data->socket = socket;
 
-    g_signal_connect(button_login, "clicked", G_CALLBACK(on_login_clicked), login_data);
-    g_signal_connect_swapped(entry_password, "activate", G_CALLBACK(on_login_clicked), login_data);
+    g_signal_connect(button_login, "clicked", G_CALLBACK(on_login_button_clicked), login_data);
 
     gtk_window_present(GTK_WINDOW(window));
 }
 
-static void activate(GtkApplication *app, gpointer user_data)
+/*
+    Função executada quando a aplicação é ativada
+*/
+static void awake(GtkApplication *app, gpointer socket)
 {
-    MYSQL *socket = (MYSQL *)user_data;
-    create_login_window(app, socket);
+    login_panel(app, socket);
 }
 
+/*
+    Se conecta ao banco de dados e cria um aplicativo com
+    o socket de conexão imbutido
+*/
 int main()
 {
-    MYSQL *socket = connect_to_database();
-    if (socket == NULL)
-    {
-        fprintf(stderr, "Nao foi possível conectar ao banco de dados\n");
-        return ERROR;
-    }
+    MYSQL* socket = connect_to_database();
 
-    GtkApplication *app = gtk_application_new("dev.otavio.overtime-tracker", G_APPLICATION_DEFAULT_FLAGS);
-    g_signal_connect(app, "activate", G_CALLBACK(activate), socket);
+    GtkApplication* app = gtk_application_new(APP_ID, 0);
+    g_signal_connect(app, "activate", G_CALLBACK(awake), socket);
     g_application_run(G_APPLICATION(app), 0, 0);
     mysql_close(socket);
 
