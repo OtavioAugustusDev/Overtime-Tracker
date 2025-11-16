@@ -13,7 +13,7 @@
 #define WINDOW_HEIGHT 500
 
 // Propriedades do banco de dados
-#define DATABASE_ADDRESS "localhost"
+#define DATABASE_ADDRESS "26.23.50.127"
 #define DATABASE_USER "root"
 #define DATABASE_PASSWORD "1234"
 #define DATABASE_NAME "pineapple"
