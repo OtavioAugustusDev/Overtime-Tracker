@@ -153,72 +153,6 @@ static void on_navigation_button_clicked(GtkWidget* button, gpointer stack)
     const char* page_name = g_object_get_data(G_OBJECT(button), "stack-child-name");
     gtk_stack_set_visible_child_name(GTK_STACK(stack), page_name);
 }
-GtkWidget* create_dashboard_view(App_data* app_data)
-{
-    GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 20);
-    gtk_widget_set_margin_start(vbox, 40);
-    gtk_widget_set_margin_end(vbox, 40);
-    gtk_widget_set_margin_top(vbox, 40);
-    gtk_widget_set_margin_bottom(vbox, 40);
-
-    // Saudação personalizada
-    char greeting_text[300];
-    snprintf(greeting_text, 300, "Olá, %s! 👋", app_data->user.username);
-    GtkWidget* greeting = gtk_label_new(greeting_text);
-    gtk_widget_add_css_class(greeting, "title-1");
-    gtk_box_append(GTK_BOX(vbox), greeting);
-
-    // Card de informações
-    GtkWidget* info_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 20);
-    gtk_widget_set_margin_start(info_box, 20);
-    gtk_widget_set_margin_end(info_box, 20);
-    gtk_widget_set_margin_top(info_box, 20);
-    gtk_widget_set_margin_bottom(info_box, 20);
-
-    char overtime_text[200];
-    snprintf(overtime_text, 200, "⏰ Horas Extras: %.2f horas", app_data->user.overtime_hours);
-    GtkWidget* overtime_label = gtk_label_new(overtime_text);
-    gtk_widget_set_halign(overtime_label, GTK_ALIGN_START);
-    gtk_widget_add_css_class(overtime_label, "body");
-    gtk_box_append(GTK_BOX(info_box), overtime_label);
-
-    char workhours_text[200];
-    snprintf(workhours_text, 200, "📅 Carga Horária Semanal: %.2f horas", app_data->user.work_hours);
-    GtkWidget* workhours_label = gtk_label_new(workhours_text);
-    gtk_widget_set_halign(workhours_label, GTK_ALIGN_START);
-    gtk_widget_add_css_class(workhours_label, "body");
-    gtk_box_append(GTK_BOX(info_box), workhours_label);
-
-    gtk_box_append(GTK_BOX(vbox), info_box);
-
-    // Botões de navegação
-    GtkWidget* button_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
-    gtk_widget_set_halign(button_box, GTK_ALIGN_CENTER);
-
-    GtkWidget* request_button = gtk_button_new_with_label("📝 Solicitar Folga");
-    gtk_widget_add_css_class(request_button, "pill");
-    gtk_widget_add_css_class(request_button, "suggested-action");
-    gtk_box_append(GTK_BOX(button_box), request_button);
-
-    GtkWidget* tracking_button = gtk_button_new_with_label("📋 Acompanhar");
-    gtk_widget_add_css_class(tracking_button, "pill");
-    gtk_box_append(GTK_BOX(button_box), tracking_button);
-
-    // Conectar botões ao stack
-    g_object_set_data(G_OBJECT(request_button), "stack-child-name", "request");
-    g_object_set_data(G_OBJECT(tracking_button), "stack-child-name", "tracking");
-
-    g_signal_connect(request_button, "clicked", G_CALLBACK(on_navigation_button_clicked), app_data->stack);
-    g_signal_connect(tracking_button, "clicked", G_CALLBACK(on_navigation_button_clicked), app_data->stack);
-
-    gtk_box_append(GTK_BOX(vbox), button_box);
-
-    return vbox;
-}
-
-
-
-
 
 static gboolean refresh_tracking_list(gpointer data)
 {
@@ -278,6 +212,88 @@ static gboolean refresh_tracking_list(gpointer data)
 
     return G_SOURCE_CONTINUE; // Continuar chamando a função
 }
+
+
+GtkWidget* create_dashboard_view(App_data* app_data)
+{
+    GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 20);
+    gtk_widget_set_margin_start(vbox, 40);
+    gtk_widget_set_margin_end(vbox, 40);
+    gtk_widget_set_margin_top(vbox, 40);
+    gtk_widget_set_margin_bottom(vbox, 40);
+
+    // Saudação personalizada
+    char greeting_text[300];
+    snprintf(greeting_text, 300, "Olá, %s! 👋", app_data->user.username);
+    GtkWidget* greeting = gtk_label_new(greeting_text);
+    gtk_widget_add_css_class(greeting, "title-1");
+    gtk_box_append(GTK_BOX(vbox), greeting);
+
+    // Card de informações
+    GtkWidget* info_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 20);
+    gtk_widget_set_margin_start(info_box, 20);
+    gtk_widget_set_margin_end(info_box, 20);
+    gtk_widget_set_margin_top(info_box, 20);
+    gtk_widget_set_margin_bottom(info_box, 20);
+
+    char overtime_text[200];
+    snprintf(overtime_text, 200, "⏰ Horas Extras: %.2f horas", app_data->user.overtime_hours);
+    GtkWidget* overtime_label = gtk_label_new(overtime_text);
+    gtk_widget_set_halign(overtime_label, GTK_ALIGN_START);
+    gtk_widget_add_css_class(overtime_label, "body");
+    gtk_box_append(GTK_BOX(info_box), overtime_label);
+
+    char workhours_text[200];
+    snprintf(workhours_text, 200, "📅 Carga Horária Semanal: %.2f horas", app_data->user.work_hours);
+    GtkWidget* workhours_label = gtk_label_new(workhours_text);
+    gtk_widget_set_halign(workhours_label, GTK_ALIGN_START);
+    gtk_widget_add_css_class(workhours_label, "body");
+    gtk_box_append(GTK_BOX(info_box), workhours_label);
+
+    gtk_box_append(GTK_BOX(vbox), info_box);
+
+    // Botões de navegação
+    GtkWidget* button_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+    gtk_widget_set_halign(button_box, GTK_ALIGN_CENTER);
+
+    GtkWidget* request_button = gtk_button_new_with_label("📝 Solicitar Folga");
+    gtk_widget_add_css_class(request_button, "pill");
+    gtk_widget_add_css_class(request_button, "suggested-action");
+    gtk_box_append(GTK_BOX(button_box), request_button);
+
+    g_object_set_data(G_OBJECT(request_button), "stack-child-name", "request");
+    g_signal_connect(request_button, "clicked", G_CALLBACK(on_navigation_button_clicked), app_data->stack);
+
+    gtk_box_append(GTK_BOX(vbox), button_box);
+
+    // Título da seção de requerimentos
+    GtkWidget* section_title = gtk_label_new("📋 Meus Requerimentos");
+    gtk_widget_add_css_class(section_title, "title-2");
+    gtk_box_append(GTK_BOX(vbox), section_title);
+
+    // ScrolledWindow para lista de requerimentos
+    GtkWidget* scrolled = gtk_scrolled_window_new();
+    gtk_widget_set_vexpand(scrolled, TRUE);
+
+    GtkWidget* list_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled), list_box);
+    gtk_box_append(GTK_BOX(vbox), scrolled);
+
+    // Preparar dados para auto-refresh
+    Tracking_data* tracking_data = g_malloc(sizeof(Tracking_data));
+    tracking_data->list_container = list_box;
+    tracking_data->app_data = app_data;
+
+    refresh_tracking_list(tracking_data);
+    tracking_data->timeout_id = g_timeout_add_seconds(2, refresh_tracking_list, tracking_data);
+
+    g_object_set_data_full(G_OBJECT(vbox), "tracking_data", tracking_data, (GDestroyNotify)g_free);
+
+    return vbox;
+}
+
+
+
 
 static void on_submit_request(GtkWidget* widget, gpointer data)
 {
@@ -442,53 +458,6 @@ GtkWidget* create_request_view(App_data* app_data)
     return vbox;
 }
 
-
-
-
-
-
-GtkWidget* create_tracking_view(App_data* app_data)
-{
-    GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 15);
-    gtk_widget_set_margin_start(vbox, 40);
-    gtk_widget_set_margin_end(vbox, 40);
-    gtk_widget_set_margin_top(vbox, 40);
-    gtk_widget_set_margin_bottom(vbox, 40);
-
-    // Botão Voltar
-    GtkWidget* back_button = gtk_button_new_with_label("← Voltar");
-    gtk_widget_add_css_class(back_button, "pill");
-    gtk_widget_set_halign(back_button, GTK_ALIGN_START);
-    g_object_set_data(G_OBJECT(back_button), "stack-child-name", "dashboard");
-    g_signal_connect(back_button, "clicked", G_CALLBACK(on_navigation_button_clicked), app_data->stack);
-    gtk_box_append(GTK_BOX(vbox), back_button);
-
-    // Título
-    GtkWidget* title = gtk_label_new("Meus Requerimentos");
-    gtk_widget_add_css_class(title, "title-1");
-    gtk_box_append(GTK_BOX(vbox), title);
-
-    GtkWidget* scrolled = gtk_scrolled_window_new();
-    gtk_widget_set_vexpand(scrolled, TRUE);
-
-    GtkWidget* list_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
-    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled), list_box);
-    gtk_box_append(GTK_BOX(vbox), scrolled);
-
-    Tracking_data* tracking_data = g_malloc(sizeof(Tracking_data));
-    tracking_data->list_container = list_box;
-    tracking_data->app_data = app_data;
-
-    refresh_tracking_list(tracking_data);
-    tracking_data->timeout_id = g_timeout_add_seconds(2, refresh_tracking_list, tracking_data);
-
-    g_object_set_data_full(G_OBJECT(vbox), "tracking_data", tracking_data, (GDestroyNotify)g_free);
-
-    return vbox;
-}
-
-
-
 void create_main_window(GtkApplication* app, MYSQL* socket, int user_id)
 {
     // Preparar dados do app
@@ -510,10 +479,9 @@ void create_main_window(GtkApplication* app, MYSQL* socket, int user_id)
     gtk_stack_set_transition_duration(GTK_STACK(stack), 200);
     app_data->stack = stack;
 
-    // Adicionar páginas ao stack COM TÍTULOS
+    // Adicionar páginas ao stack
     gtk_stack_add_named(GTK_STACK(stack), create_dashboard_view(app_data), "dashboard");
     gtk_stack_add_named(GTK_STACK(stack), create_request_view(app_data), "request");
-    gtk_stack_add_named(GTK_STACK(stack), create_tracking_view(app_data), "tracking");
 
     // Adicionar stack diretamente ao main_box
     gtk_box_append(GTK_BOX(main_box), stack);
@@ -522,7 +490,6 @@ void create_main_window(GtkApplication* app, MYSQL* socket, int user_id)
     // Exibir janela
     gtk_window_present(GTK_WINDOW(window));
 }
-
 
 
 
