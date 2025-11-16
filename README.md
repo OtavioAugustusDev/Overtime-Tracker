@@ -88,3 +88,5 @@ source C:\Users\SeuUsuario\caminho\para\o\projeto\init.sql
 - [Instalação das dependências de compilação do GTK4](https://www.treinaweb.com.br/blog/criando-uma-aplicacao-c-com-gtk-no-codeblocks/)
 - [Documentação da biblioteca GTK4](https://docs.gtk.org/gtk4/)
 - [Utilização da linha do comando do Cliente MySQL](https://www.treinaweb.com.br/blog/primeiros-passos-com-mysql)
+- [Conversão de tipos em C](https://www.geeksforgeeks.org/c/c-typecasting/)
+- [Definição de estruturas em C](https://www.geeksforgeeks.org/c/structures-c/)
