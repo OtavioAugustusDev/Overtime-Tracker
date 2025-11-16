@@ -1,61 +1,90 @@
-# Overtime-Tracker
+# Overtime Tracker
 
-# Funcionamento (atual)
-Exibe um menu de autenticação que recebe o nome e a senha do utilizador, se os campos de inserção estiverem vazios ou as credenciais não forem encontrados nos banco de dados, exibe um erro. Caso o usuário exista de fato, fecha a janela e termina o programa.
+Sistema gerenciador de horas extras desenvolvido em C com interface gráfica GTK4 e banco de dados MySQL.
 
-# Como construir
+## Sobre
 
-## Pré-requisitos
-* Um compilador para a linguagem de programação C, se não tiver um instalado, siga [este passo-a-passo](https://syntaxpathways.com/set-up-c-development-environment/);
-* A IDE Code-blocks, pode ser obtida [aqui](https://sourceforge.net/projects/codeblocks/files/Binaries/25.03/Windows/codeblocks-25.03-setup.exe/download);
-* Um servidor MySQL, pode ser obtido [aqui](https://dev.mysql.com/downloads/windows/installer/8.0.html).
-* Experiência prática com IDEs, a linguagem C e com o SGBD do MySQL
+O sistema exibe uma tela de autenticação que solicita nome de usuário e senha. Ao submeter:
+- **Se os campos estiverem vazios**: Exibe mensagem de erro;
+- **Se as credenciais forem inválidas**: Exibe mensagem de erro;
+- **Se as credenciais forem válidas**: Fecha a janela de login e encerra.
 
-OBS.: Para que a compilação funcione, todos os programas mencionados acima devem estar no diretório padrão de instalação, caso contrário, será necessário apontar para as pastas de instalação manualmente apartir da IDE.
+### Funcionalidades
+- Sistema de autenticação de usuários;
+- Conexão com banco de dados MySQL;
+- Interface gráfica com GTK4;
+- Validação de campos vazios;
+- Verificação de credenciais no banco de dados.
 
-## Dependências
-Instale todas as dependências da biblioteca GTK4 com o seguinte comando no terminal do MSYS2 MSYS:
-```
-pacman -Syu && \
-pacman -S mingw-w64-x86_64-toolchain && \
-pacman -S base-devel && \
-pacman -S mingw-w64-x86_64-gtk4 && \
-pacman -S mingw-w64-x86_64-glade && \
+## Configuração do Ambiente de Desenvolvimento
+
+### Pré-requisitos
+
+1. **Compilador C**
+   - [Guia de instalação](https://syntaxpathways.com/set-up-c-development-environment/)
+
+2. **IDE Code::Blocks 25.03**
+   - [Download aqui](https://sourceforge.net/projects/codeblocks/files/Binaries/25.03/Windows/codeblocks-25.03-setup.exe/download)
+
+3. **MySQL Server**
+   - [Download aqui](https://dev.mysql.com/downloads/windows/installer/8.0.html)
+
+> **Observação**: Instale todos os programas nos diretórios padrão. Caso contrário, será necessário configurar os caminhos manualmente na IDE.
+
+## Instalação das Dependências
+
+### 1. GTK4 e Utilitários
+
+Abra o terminal **MSYS2 MSYS** e execute:
+
+```bash
+pacman -Syu
+pacman -S mingw-w64-x86_64-toolchain
+pacman -S base-devel
+pacman -S mingw-w64-x86_64-gtk4
+pacman -S mingw-w64-x86_64-glade
 pacman -Syu
 ```
-Verifique se as depêndencias foram instaladas corretamente executando no terminal do MSYS2 MINGW64:
-```
+
+Ao final, verifique se a instalação correu bem executando o seguinte comando no terminal **MSYS2 MINGW64**:
+
+```bash
 pkg-config --cflags gtk4
 ```
-Se uma mensagem de erro aparecer, refaça os passos acima novamente
 
-## Conexão com o banco de dados
-1. Execute o terminal de comando do Cliente do MySQL "MySQL Command Line Client"
-2. Autentique-se com sua senha de usuário "root"
-3. Execute o arquivo "init.sql" para construir o banco de dados seguindo o comando:
+> **Observação**: Caso o comando não seja encontrado, repita os passos de instalação novamente.
+
+## Configuração do Banco de Dados
+
+1. Abra o **MySQL Command Line Client**
+2. Faça login com a senha do usuário `root`
+3. Execute o arquivo de inicialização:
+
+```sql
+source C:\Users\SeuUsuario\caminho\para\o\projeto\init.sql
 ```
-source C:\Users\OtavioAugustus\<caminho para o arquivo>\init.sql
-```
 
-Apartir de agora o programa estará apto a ser executado, o usuário padrão é "admin" "1234".
+## Compilação e Execução
 
-## Compilação
-1. Abra o arquivo "Overtime Tracker.cdp" com a IDE CODE::BLOCKS
-2. Pressione Ctrl. + F9 para compilar e aguarde a saída indicar sucesso
-3. Pressione Ctrl. + F10 para executar
+1. Abra o arquivo `Overtime Tracker.cbp` no Code::Blocks
+2. Compile o projeto: `Ctrl + F9`
+3. Aguarde a mensagem de sucesso na saída
+4. Execute o programa: `Ctrl + F10`
+5. Teste o cliente com as credenciais:
+- **Usuário**: `admin`
+- **Senha**: `1234`
 
-# Como executar
-Baixe o lançamento mais recente [aqui](https://github.com/OtavioAugustusDev/Overtime-Tracker/releases)
+### TO-DO
+- Implementar painel principal após login
+- Cadastro de horas extras
+- Relatórios e consultas
+- Gestão de usuários
 
-# Literatura
-Como instalar um compilador para C: https://syntaxpathways.com/set-up-c-development-environment/
+## Referências
 
-Como instalar as dependências necessárias para compilar a biblioteca GTK: https://www.treinaweb.com.br/blog/criando-interfaces-graficas-no-c-com-gtk/
-
-Como configurar uma IDE para trabalhar com MySQL e GTK:
-* https://www.treinaweb.com.br/blog/utilizando-o-mysql-em-uma-aplicacao-c/
-* https://www.treinaweb.com.br/blog/criando-uma-aplicacao-c-com-gtk-no-codeblocks/
-
-Como construir janelas com GTK4: https://docs.gtk.org/gtk4/
-
-Como utilizar a linha de comando do MySQL: https://www.treinaweb.com.br/blog/primeiros-passos-com-mysql
+- [Instalação do GNU COMPILER COLLECTION](https://syntaxpathways.com/set-up-c-development-environment/)
+- [Instalação e configuração da biblioteca GTK4 na IDE Code::Blocks](https://www.treinaweb.com.br/blog/criando-interfaces-graficas-no-c-com-gtk/)
+- [Instalação e configuração do connector MySQL na IDE Code::Blocks](https://www.treinaweb.com.br/blog/utilizando-o-mysql-em-uma-aplicacao-c/)
+- [Instalação das dependências de compilação do GTK4](https://www.treinaweb.com.br/blog/criando-uma-aplicacao-c-com-gtk-no-codeblocks/)
+- [Documentação da biblioteca GTK4](https://docs.gtk.org/gtk4/)
+- [Utilização da linha do comando do Cliente MySQL](https://www.treinaweb.com.br/blog/primeiros-passos-com-mysql)
