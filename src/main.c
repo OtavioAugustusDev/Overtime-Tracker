@@ -40,8 +40,8 @@ typedef struct {
 } Login_data;
 
 /*
-    Estabelece conexão com o banco de dados e retorna um socket caso tenha êxito,
-    se a conexão falhar, encerra o programa.
+    MID-LEVEL ABSTRACTION: Tenta conexão com o banco de dados,
+    retorna um socket caso tenha êxito, senão, encerra o programa.
 */
 MYSQL* connect_to_database()
 {
@@ -65,6 +65,37 @@ MYSQL* connect_to_database()
 
     return socket;
 }
+
+/*
+    MID-LEVEL ABSTRACTION: Cria um campo de inserção de texto com título e placeholder
+*/
+GtkWidget* create_input_text(char* title, char* placeholder, int secret)
+{
+    GtkWidget* input_label = gtk_label_new(title);
+    gtk_widget_set_halign(input_label, GTK_ALIGN_START);
+
+    GtkWidget* input_text = gtk_entry_new();
+    gtk_entry_set_placeholder_text(GTK_ENTRY(input_text), placeholder);
+    gtk_entry_set_visibility(GTK_ENTRY(input_text), secret);
+
+    return input_text;
+}
+
+/*
+    MID-LEVEL ABSTRACTION: Cria e retorna uma janela pré-configurada
+*/
+GtkWidget* create_window(GtkApplication* app, char* title, int width, int height)
+{
+    GtkWidget* window = gtk_application_window_new(app);
+    gtk_window_set_title(GTK_WINDOW(window), title);
+    gtk_window_set_default_size(GTK_WINDOW(window), width, height);
+    return window;
+}
+
+
+
+
+
 
 /*
     Escuta pressionamentos do botão de login e envia as informações inseridas
@@ -94,32 +125,6 @@ static void on_login_button_clicked(GtkWidget* widget, gpointer login_data)
     int results = mysql_num_rows(matches);
 
     return results ? exit(SUCCESS) : gtk_label_set_text(GTK_LABEL(data->output_label), "Credenciais falsas");
-}
-
-/*
-    MID-LEVEL ABSTRACTION: Cria um campo de inserção de texto com título e placeholder
-*/
-GtkWidget* create_input_text(char* title, char* placeholder, int secret)
-{
-    GtkWidget* input_label = gtk_label_new(title);
-    gtk_widget_set_halign(input_label, GTK_ALIGN_START);
-
-    GtkWidget* input_text = gtk_entry_new();
-    gtk_entry_set_placeholder_text(GTK_ENTRY(input_text), placeholder);
-    gtk_entry_set_visibility(GTK_ENTRY(input_text), secret);
-
-    return input_text;
-}
-
-/*
-    MID-LEVEL ABSTRACTION: Cria e retorna uma janela pré-configurada
-*/
-GtkWidget* create_window(GtkApplication* app, char* title, int width, int height)
-{
-    GtkWidget* window = gtk_application_window_new(app);
-    gtk_window_set_title(GTK_WINDOW(window), title);
-    gtk_window_set_default_size(GTK_WINDOW(window), width, height);
-    return window;
 }
 
 /*
