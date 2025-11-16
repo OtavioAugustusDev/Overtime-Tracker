@@ -1,20 +1,7 @@
 # Overtime Tracker
-
 Sistema gerenciador de horas extras desenvolvido em C com interface gráfica GTK4 e banco de dados MySQL.
 
-## Sobre
-
-O sistema exibe uma tela de autenticação que solicita nome de usuário e senha. Ao submeter:
-- **Se os campos estiverem vazios**: Exibe mensagem de erro;
-- **Se as credenciais forem inválidas**: Exibe mensagem de erro;
-- **Se as credenciais forem válidas**: Fecha a janela de login e encerra.
-
-### Funcionalidades
-- Sistema de autenticação de usuários;
-- Conexão com banco de dados MySQL;
-- Interface gráfica com GTK4;
-- Validação de campos vazios;
-- Verificação de credenciais no banco de dados.
+<img width="1365" height="716" alt="image" src="https://github.com/user-attachments/assets/59a5b870-e909-43f0-ad97-7413c6f76484" />
 
 ## Configuração do Ambiente de Desenvolvimento
 
@@ -71,14 +58,8 @@ source C:\Users\SeuUsuario\caminho\para\o\projeto\init.sql
 3. Aguarde a mensagem de sucesso na saída
 4. Execute o programa: `Ctrl + F10`
 5. Teste o cliente com as credenciais:
-- **Usuário**: `admin`
-- **Senha**: `1234`
-
-### TO-DO
-- Implementar painel principal após login
-- Cadastro de horas extras
-- Relatórios e consultas
-- Gestão de usuários
+- **Usuário**: `gestor`
+- **Senha**: `admin123`
 
 ## Referências
 
