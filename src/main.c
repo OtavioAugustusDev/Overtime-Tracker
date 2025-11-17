@@ -894,7 +894,7 @@ static void refresh_requests_admin_list(GtkWidget* list_box, App_data* app_data)
             char*   username    = row[1];
             char*   date        = row[2];
             char*   hours       = row[3];
-            char*   notes       = row[4] ? row[4] : "";
+            char*   notes       = row[4];// ? row[4] : "";
             char*   status      = row[5];
 
             GtkWidget* card = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
@@ -1146,41 +1146,27 @@ static void on_login_button_clicked(GtkWidget* widget, gpointer login_data)
 
     if (empty_fields)
     {
-        gtk_label_set_text(GTK_LABEL(data->output_label), "Existem campos vazios");
+        gtk_label_set_text(GTK_LABEL(data->output_label), "Preencha todos os campos!");
         return;
     }
 
-    char query[BUFFER_SIZE];
-    snprintf(query, BUFFER_SIZE,
-             "SELECT id FROM users WHERE username='%s' AND password='%s'",
-             username, password);
+    int user_id = authenticate_user(data->socket, username, password);
 
-    mysql_query(data->socket, query);
-
-    MYSQL_RES* matches = mysql_store_result(data->socket);
-    int results = mysql_num_rows(matches);
-
-    if (results > 0)
+    if (user_id)
     {
-        MYSQL_ROW row = mysql_fetch_row(matches);
-        int user_id = atoi(row[0]);
-        mysql_free_result(matches);
-
         GtkApplication* app = gtk_window_get_application(GTK_WINDOW(data->login_window));
         gtk_window_destroy(GTK_WINDOW(data->login_window));
         create_main_window(app, data->socket, user_id);
     }
     else
     {
-        gtk_label_set_text(GTK_LABEL(data->output_label), "Credenciais falsas");
-        mysql_free_result(matches);
+        gtk_label_set_text(GTK_LABEL(data->output_label), "Credenciais inválidas!");
     }
 }
 
 static void login_panel(GtkApplication* app, MYSQL* socket)
 {
-    GtkWidget* window = create_window(app, "Login - Sistema de Horas Extras",
-                                     WINDOW_WIDTH, 350);
+    GtkWidget* window = create_window(app, "Login - Sistema de Horas Extras", WINDOW_WIDTH, 350);
 
     GtkWidget* main_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_window_set_child(GTK_WINDOW(window), main_box);

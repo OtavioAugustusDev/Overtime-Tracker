@@ -9,5 +9,6 @@
 
 MYSQL* connect_to_database();
 MYSQL_ROW load_user_data(MYSQL* socket, int user_id);
+int authenticate_user(MYSQL* socket, char* username, char* password);
 
 #endif

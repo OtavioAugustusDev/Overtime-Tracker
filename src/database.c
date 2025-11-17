@@ -48,3 +48,33 @@ MYSQL_ROW load_user_data(MYSQL* socket, int user_id)
     */
     return user_data;
 }
+
+int authenticate_user(MYSQL* socket, char* username, char* password)
+{
+    char query[1024];
+    snprintf(query, 1024,
+             "SELECT id FROM users WHERE username='%s' AND password='%s'",
+             username, password);
+
+    mysql_query(socket, query);
+
+    MYSQL_RES* matches = mysql_store_result(socket);
+
+    int result = mysql_num_rows(matches);
+
+    if (result)
+    {
+        MYSQL_ROW data = mysql_fetch_row(matches);
+        int user_id = atoi(data[0]);
+
+        mysql_free_result(matches);
+
+        return user_id;
+    }
+
+    mysql_free_result(matches);
+
+    return result;
+}
+
+
