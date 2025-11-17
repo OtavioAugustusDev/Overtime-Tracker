@@ -15,6 +15,7 @@
 					<Add option="-O2" />
 					<Add option="`pkg-config --cflags gtk4`" />
 					<Add directory="C:/Program Files/MySQL/MySQL Server 8.0/include" />
+					<Add directory="C:/Users/OtavioAugustus/Desktop/Overtime-Tracker/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -44,6 +45,12 @@
 			<Add library="../../../../Program Files/MySQL/MySQL Server 8.0/lib/mysqlrouter_mysqlxmessages.lib" />
 			<Add library="../../../../Program Files/MySQL/MySQL Server 8.0/lib/mysqlrouter_routing.lib" />
 		</Linker>
+		<Unit filename="include/database.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="src/database.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/main.c">
 			<Option compilerVar="CC" />
 		</Unit>

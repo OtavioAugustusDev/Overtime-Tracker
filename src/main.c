@@ -5,22 +5,17 @@
 #include <mysql.h>
 #include <gtk/gtk.h>
 
+#include "database.h"
+
 #define WINDOW_TITLE "Sistema de Horas Extras"
 #define WINDOW_WIDTH 400
 #define WINDOW_HEIGHT 500
-
-#define DATABASE_ADDRESS "localhost"
-#define DATABASE_USER "root"
-#define DATABASE_PASSWORD "1234"
-#define DATABASE_NAME "pineapple"
-#define DATABASE_PORT 3306
 
 #define BUFFER_SIZE 1024
 #define SYSTEM_LOCK_TIME 999
 
 #define APP_ID "dev.otavio.overtime-tracker"
 
-#define CONNECTION_ERROR -3
 #define USER_NOT_FOUND -2
 #define FATAL_ERROR -1
 #define SUCCESS 0
@@ -68,29 +63,6 @@ typedef struct {
     guint timeout_id;
 } Requests_admin_data;
 
-MYSQL* connect_to_database()
-{
-    MYSQL* socket = mysql_init(NULL);
-    MYSQL* connection = mysql_real_connect(
-        socket,
-        DATABASE_ADDRESS,
-        DATABASE_USER,
-        DATABASE_PASSWORD,
-        DATABASE_NAME,
-        DATABASE_PORT,
-        NULL,
-        0);
-
-    if (connection == NULL)
-    {
-        fprintf(stderr, "Erro ao conectar: %s\n", mysql_error(socket));
-        mysql_close(socket);
-        exit(CONNECTION_ERROR);
-    }
-
-    return socket;
-}
-
 GtkWidget* create_input_text(char* title, char* placeholder, int secret)
 {
     GtkWidget* input_label = gtk_label_new(title);
@@ -109,29 +81,6 @@ GtkWidget* create_window(GtkApplication* app, char* title, int width, int height
     gtk_window_set_title(GTK_WINDOW(window), title);
     gtk_window_set_default_size(GTK_WINDOW(window), width, height);
     return window;
-}
-
-void load_user_data(MYSQL* socket, int user_id, User* user)
-{
-    char query[BUFFER_SIZE];
-    snprintf(query, BUFFER_SIZE,
-             "SELECT id, username, overtime_hours, work_hours, role FROM users WHERE id=%d",
-             user_id);
-
-    mysql_query(socket, query);
-    MYSQL_RES* result = mysql_store_result(socket);
-    MYSQL_ROW row = mysql_fetch_row(result);
-
-    if (row)
-    {
-        user->user_id = atoi(row[0]);
-        strncpy(user->username, row[1], 99);
-        user->overtime_hours = atof(row[2]);
-        user->work_hours = atof(row[3]);
-        strncpy(user->role, row[4], 9);
-    }
-
-    mysql_free_result(result);
 }
 
 static void on_navigation_button_clicked(GtkWidget* button, gpointer stack)
@@ -225,7 +174,7 @@ static gboolean refresh_tracking_list(gpointer data)
 
     mysql_free_result(result);
 
-    return G_SOURCE_CONTINUE; // Continuar chamando a função
+    return G_SOURCE_CONTINUE;
 }
 
 static gboolean is_system_closed()
@@ -1147,7 +1096,16 @@ void create_main_window(GtkApplication* app, MYSQL* socket, int user_id)
 {
     App_data* app_data = g_malloc(sizeof(App_data));
     app_data->socket = socket;
-    load_user_data(socket, user_id, &app_data->user);
+
+    MYSQL_ROW user_data = load_user_data(socket, user_id);
+
+    if (!user_data) exit(0);
+
+    app_data->user.user_id = atoi(user_data[0]);
+    strncpy(app_data->user.username, user_data[1], 99);
+    app_data->user.overtime_hours = atof(user_data[2]);
+    app_data->user.work_hours = atof(user_data[3]);
+    strncpy(app_data->user.role, user_data[4], 9);
 
     GtkWidget* window = create_window(app, WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT);
     app_data->window = window;
