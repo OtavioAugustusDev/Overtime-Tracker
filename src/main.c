@@ -6,19 +6,9 @@
 #include <gtk/gtk.h>
 
 #include "database.h"
+#include "interface.h"
 
-#define WINDOW_TITLE "Sistema de Horas Extras"
-#define WINDOW_WIDTH 400
-#define WINDOW_HEIGHT 500
-
-#define BUFFER_SIZE 1024
 #define SYSTEM_LOCK_TIME 999
-
-#define APP_ID "dev.otavio.overtime-tracker"
-
-#define USER_NOT_FOUND -2
-#define FATAL_ERROR -1
-#define SUCCESS 0
 
 typedef struct {
     int user_id;
@@ -63,26 +53,6 @@ typedef struct {
     guint timeout_id;
 } Requests_admin_data;
 
-GtkWidget* create_input_text(char* title, char* placeholder, int secret)
-{
-    GtkWidget* input_label = gtk_label_new(title);
-    gtk_widget_set_halign(input_label, GTK_ALIGN_START);
-
-    GtkWidget* input_text = gtk_entry_new();
-    gtk_entry_set_placeholder_text(GTK_ENTRY(input_text), placeholder);
-    gtk_entry_set_visibility(GTK_ENTRY(input_text), secret);
-
-    return input_text;
-}
-
-GtkWidget* create_window(GtkApplication* app, char* title, int width, int height)
-{
-    GtkWidget* window = gtk_application_window_new(app);
-    gtk_window_set_title(GTK_WINDOW(window), title);
-    gtk_window_set_default_size(GTK_WINDOW(window), width, height);
-    return window;
-}
-
 static void on_navigation_button_clicked(GtkWidget* button, gpointer stack)
 {
     const char* page_name = g_object_get_data(G_OBJECT(button), "stack-child-name");
@@ -101,8 +71,8 @@ static gboolean refresh_tracking_list(gpointer data)
         child = next;
     }
 
-    char query[BUFFER_SIZE];
-    snprintf(query, BUFFER_SIZE,
+    char query[1024];
+    snprintf(query, 1024,
              "SELECT id, date, hours, notes, status, created_at "
              "FROM time_off_requests WHERE user_id=%d ORDER BY created_at DESC",
              tracking_data->app_data->user.user_id);
@@ -332,8 +302,8 @@ static void on_submit_request(GtkWidget* widget, gpointer data)
     }
 
     // Inserir no banco de dados
-    char query[BUFFER_SIZE];
-    snprintf(query, BUFFER_SIZE,
+    char query[1024];
+    snprintf(query, 1024,
              "INSERT INTO time_off_requests (user_id, date, hours, notes, status) "
              "VALUES (%d, '%s', %s, '%s', 'PENDENTE')",
              req_data->app_data->user.user_id, date, hours, notes);
@@ -570,15 +540,15 @@ static void on_edit_user_response(GtkDialog* dialog, int response_id, gpointer d
 
         int user_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "user_id"));
 
-        char query[BUFFER_SIZE];
+        char query[1024];
 
         if (!user_id) {
-            snprintf(query, BUFFER_SIZE,
+            snprintf(query, 1024,
                      "INSERT INTO users (username, password, role, work_hours, overtime_hours) "
                      "VALUES ('%s', '%s', '%s', %d, 0)",
                      name, pass, role, hours);
         } else {
-            snprintf(query, BUFFER_SIZE,
+            snprintf(query, 1024,
                      "UPDATE users SET username='%s', password='%s', role='%s', work_hours=%d "
                      "WHERE id=%d",
                      name, pass, role, hours, user_id);
@@ -696,8 +666,8 @@ static void on_delete_user_clicked(GtkWidget* widget, gpointer data)
     GtkWidget* list_box = GTK_WIDGET(data);
     int user_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "user_id"));
 
-    char query[BUFFER_SIZE];
-    snprintf(query, BUFFER_SIZE, "DELETE FROM users WHERE id=%d", user_id);
+    char query[1024];
+    snprintf(query, 1024, "DELETE FROM users WHERE id=%d", user_id);
 
     MYSQL* socket = ((App_data*)g_object_get_data(G_OBJECT(list_box), "app_data"))->socket;
     mysql_query(socket, query);
@@ -1001,7 +971,7 @@ void create_main_window(GtkApplication* app, MYSQL* socket, int user_id)
     app_data->user.work_hours = atof(user_data[3]);
     strncpy(app_data->user.role, user_data[4], 9);
 
-    GtkWidget* window = create_window(app, WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT);
+    GtkWidget* window = create_window(app, "Sistema de banco de horas", 400, 500);
     app_data->window = window;
 
     GtkWidget* main_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -1060,7 +1030,7 @@ static void on_login_button_clicked(GtkWidget* widget, gpointer login_data)
 
 static void login_panel(GtkApplication* app, MYSQL* socket)
 {
-    GtkWidget* window = create_window(app, "Login - Sistema de Horas Extras", WINDOW_WIDTH, 350);
+    GtkWidget* window = create_window(app, "Login - Sistema de Horas Extras", 400, 350);
 
     GtkWidget* main_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_window_set_child(GTK_WINDOW(window), main_box);
@@ -1163,10 +1133,10 @@ int main()
 {
     MYSQL* socket = connect_to_database();
 
-    GtkApplication* app = gtk_application_new(APP_ID, 0);
+    GtkApplication* app = gtk_application_new("dev.otavio.overtime-tracker", 0);
     g_signal_connect(app, "activate", G_CALLBACK(awake), socket);
     g_application_run(G_APPLICATION(app), 0, 0);
     mysql_close(socket);
 
-    exit(SUCCESS);
+    exit(1);
 }

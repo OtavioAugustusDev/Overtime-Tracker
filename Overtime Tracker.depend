@@ -4494,3 +4494,9 @@
 	<mysql.h>
 	"database.h"
 
+1763429284 source:c:\users\otavioaugustus\desktop\overtime-tracker\src\interface.c
+	<gtk/gtk.h>
+	"interface.h"
+
+1763429542 c:\users\otavioaugustus\desktop\overtime-tracker\include\interface.h
+
