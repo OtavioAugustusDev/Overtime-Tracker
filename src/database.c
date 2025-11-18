@@ -58,7 +58,7 @@ MYSQL_ROW load_user_data(MYSQL* socket, int user_id)
 {
     char query[1024];
     snprintf(query, 1024,
-             "SELECT id, username, overtime_hours, work_hours, role FROM users WHERE id=%d",
+             "SELECT id, username, overtime_hours, work_hours, role, password FROM users WHERE id=%d",
              user_id);
 
     mysql_query(socket, query);
@@ -73,6 +73,7 @@ MYSQL_ROW load_user_data(MYSQL* socket, int user_id)
         [2] overtime_hours
         [3] work_hours
         [4] role
+        [5] password
     */
     return user_data;
 }
