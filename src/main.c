@@ -841,19 +841,7 @@ static void on_update_request_status_clicked(GtkWidget* widget, gpointer data)
     int request_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "request_id"));
     const char* new_status = g_object_get_data(G_OBJECT(widget), "new_status");
 
-    if (strcmp(new_status, "APROVADO") == 0) {
-        char q1[BUFFER_SIZE];
-        snprintf(q1, BUFFER_SIZE,
-                 "UPDATE users u "
-                 "JOIN time_off_requests r ON r.user_id = u.id "
-                 "SET u.overtime_hours = GREATEST(0, u.overtime_hours - r.hours) "
-                 "WHERE r.id=%d", request_id);
-        mysql_query(app_data->socket, q1);
-    }
-
-    char q2[BUFFER_SIZE];
-    snprintf(q2, BUFFER_SIZE, "UPDATE time_off_requests SET status='%s' WHERE id=%d", new_status, request_id);
-    mysql_query(app_data->socket, q2);
+    answer_request(app_data->socket, new_status, request_id);
 
     refresh_requests_admin_list(list_box, app_data);
 }
@@ -861,40 +849,25 @@ static void on_update_request_status_clicked(GtkWidget* widget, gpointer data)
 static void refresh_requests_admin_list(GtkWidget* list_box, App_data* app_data)
 {
     GtkWidget* child = gtk_widget_get_first_child(list_box);
-    while (child != NULL) {
+    while (child != NULL)
+    {
         GtkWidget* next = gtk_widget_get_next_sibling(child);
         gtk_box_remove(GTK_BOX(list_box), child);
         child = next;
     }
 
-    const char* query =
-        "SELECT r.id, u.username, r.date, r.hours, r.notes, r.status, r.created_at "
-        "FROM time_off_requests r "
-        "JOIN users u ON u.id = r.user_id "
-        "ORDER BY r.created_at DESC";
+    MYSQL_RES* result = get_requests_list(app_data->socket);
 
-    if (mysql_query(app_data->socket, query) != 0) {
-        GtkWidget* error_label = gtk_label_new("Erro ao carregar requerimentos.");
-        gtk_widget_add_css_class(error_label, "error");
-        gtk_box_append(GTK_BOX(list_box), error_label);
-        return;
-    }
-
-    MYSQL_RES* result = mysql_store_result(app_data->socket);
-
-    if (!result || mysql_num_rows(result) == 0) {
-        GtkWidget* empty_label = gtk_label_new("Nenhum requerimento encontrado.");
-        gtk_widget_add_css_class(empty_label, "dim-label");
-        gtk_box_append(GTK_BOX(list_box), empty_label);
-    } else {
+    if (mysql_num_rows(result))
+    {
         MYSQL_ROW row;
-        while ((row = mysql_fetch_row(result))) {
-
+        while ((row = mysql_fetch_row(result)))
+        {
             int     req_id      = atoi(row[0]);
             char*   username    = row[1];
             char*   date        = row[2];
             char*   hours       = row[3];
-            char*   notes       = row[4];// ? row[4] : "";
+            char*   notes       = row[4];
             char*   status      = row[5];
 
             GtkWidget* card = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
@@ -973,8 +946,14 @@ static void refresh_requests_admin_list(GtkWidget* list_box, App_data* app_data)
             gtk_box_append(GTK_BOX(list_box), card);
         }
     }
+    else
+    {
+        GtkWidget* empty_label = gtk_label_new("Nenhum requerimento encontrado.");
+        gtk_widget_add_css_class(empty_label, "dim-label");
+        gtk_box_append(GTK_BOX(list_box), empty_label);
+    }
 
-    if (result) mysql_free_result(result);
+    mysql_free_result(result);
 }
 
 static gboolean refresh_requests_admin_periodic(gpointer data)

@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1763421065 source:c:\users\otavioaugustus\desktop\overtime-tracker\src\main.c
+1763424499 source:c:\users\otavioaugustus\desktop\overtime-tracker\src\main.c
 	<stdio.h>
 	<string.h>
 	<stdbool.h>
@@ -4487,9 +4487,9 @@
 1759645852 c:\msys64\mingw64\include\gtk-4.0\gtk\gtkwindowhandle.h
 	<gtk/gtkwidget.h>
 
-1763419641 c:\users\otavioaugustus\desktop\overtime-tracker\include\database.h
+1763424554 c:\users\otavioaugustus\desktop\overtime-tracker\include\database.h
 
-1763419698 source:c:\users\otavioaugustus\desktop\overtime-tracker\src\database.c
+1763424568 source:c:\users\otavioaugustus\desktop\overtime-tracker\src\database.c
 	<stdio.h>
 	<mysql.h>
 	"database.h"
