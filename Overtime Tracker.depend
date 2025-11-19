@@ -4489,7 +4489,7 @@
 1759645852 c:\msys64\mingw64\include\gtk-4.0\gtk\gtkwindowhandle.h
 	<gtk/gtkwidget.h>
 
-1763512109 c:\users\otavioaugustus\desktop\overtime-tracker\include\database.h
+1763514301 c:\users\otavioaugustus\desktop\overtime-tracker\include\database.h
 	<mysql.h>
 
 1763513356 source:c:\users\otavioaugustus\desktop\overtime-tracker\src\database.c

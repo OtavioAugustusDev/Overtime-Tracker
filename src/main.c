@@ -155,6 +155,47 @@ static gboolean refresh_tracking_list(gpointer data)
 
 // ==================== DASHBOARD VIEW ====================
 
+typedef struct {
+    GtkWidget* overtime_label;
+    App_data* app_data;
+    guint timeout_id;
+} DashboardData;
+
+static void cleanup_dashboard_data(gpointer data)
+{
+    DashboardData* dashboard_data = (DashboardData*)data;
+
+    if (dashboard_data->timeout_id > 0)
+    {
+        g_source_remove(dashboard_data->timeout_id);
+        dashboard_data->timeout_id = 0;
+    }
+
+    g_free(dashboard_data);
+}
+
+static gboolean refresh_dashboard_balance(gpointer data)
+{
+    DashboardData* dashboard_data = (DashboardData*)data;
+
+    // Recarrega dados do usuário
+    MYSQL_ROW user_data = load_user_data(dashboard_data->app_data->socket,
+                                         dashboard_data->app_data->user.user_id);
+
+    if (user_data)
+    {
+        dashboard_data->app_data->user.overtime_hours = atof(user_data[2]);
+
+        // Atualiza o label
+        char overtime_text[100];
+        snprintf(overtime_text, sizeof(overtime_text), "%.1f horas",
+                dashboard_data->app_data->user.overtime_hours);
+        gtk_label_set_text(GTK_LABEL(dashboard_data->overtime_label), overtime_text);
+    }
+
+    return G_SOURCE_CONTINUE;
+}
+
 GtkWidget* create_dashboard_view(App_data* app_data)
 {
     GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 20);
@@ -254,6 +295,15 @@ GtkWidget* create_dashboard_view(App_data* app_data)
 
     g_object_set_data_full(G_OBJECT(vbox), "tracking_data", tracking_data,
                           (GDestroyNotify)g_free);
+
+    // Cria estrutura para atualizar saldo
+    DashboardData* dashboard_data = g_malloc(sizeof(DashboardData));
+    dashboard_data->overtime_label = overtime_label;
+    dashboard_data->app_data = app_data;
+    dashboard_data->timeout_id = g_timeout_add_seconds(2, refresh_dashboard_balance, dashboard_data);
+
+    g_object_set_data_full(G_OBJECT(vbox), "dashboard_data", dashboard_data,
+                          cleanup_dashboard_data);
 
     return vbox;
 }
@@ -886,6 +936,38 @@ GtkWidget* create_manage_requests_view(App_data* app_data)
 
 // ==================== MANAGER DASHBOARD VIEW ====================
 
+typedef struct {
+    GtkWidget* pending_label;
+    MYSQL* socket;
+    guint timeout_id;
+} ManagerDashboardData;
+
+static void cleanup_manager_dashboard_data(gpointer data)
+{
+    ManagerDashboardData* manager_data = (ManagerDashboardData*)data;
+
+    if (manager_data->timeout_id > 0)
+    {
+        g_source_remove(manager_data->timeout_id);
+        manager_data->timeout_id = 0;
+    }
+
+    g_free(manager_data);
+}
+
+static gboolean refresh_pending_count(gpointer data)
+{
+    ManagerDashboardData* manager_data = (ManagerDashboardData*)data;
+
+    int pending_count = get_pending_requests_count(manager_data->socket);
+
+    char pending_text[100];
+    snprintf(pending_text, sizeof(pending_text), "%d", pending_count);
+    gtk_label_set_text(GTK_LABEL(manager_data->pending_label), pending_text);
+
+    return G_SOURCE_CONTINUE;
+}
+
 GtkWidget* create_manager_dashboard_view(App_data* app_data)
 {
     GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 20);
@@ -948,6 +1030,15 @@ GtkWidget* create_manager_dashboard_view(App_data* app_data)
     gtk_box_append(GTK_BOX(button_box), manage_requests_button);
 
     gtk_box_append(GTK_BOX(vbox), button_box);
+
+    // Cria estrutura para atualizar contador de pendentes
+    ManagerDashboardData* manager_data = g_malloc(sizeof(ManagerDashboardData));
+    manager_data->pending_label = pending_label;
+    manager_data->socket = app_data->socket;
+    manager_data->timeout_id = g_timeout_add_seconds(2, refresh_pending_count, manager_data);
+
+    g_object_set_data_full(G_OBJECT(vbox), "manager_data", manager_data,
+                          cleanup_manager_dashboard_data);
 
     return vbox;
 }
