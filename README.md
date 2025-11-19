@@ -51,15 +51,163 @@ pkg-config --cflags gtk4
 source C:\Users\SeuUsuario\caminho\para\o\projeto\init.sql
 ```
 
+4. As credenciais do banco de dados se encontram no cabeçalho `database.h`:
+
+```c
+#define DATABASE_ADDRESS "localhost"
+#define DATABASE_USER "root"
+#define DATABASE_PASSWORD "123"
+#define DATABASE_NAME "pineapple"
+#define DATABASE_PORT 3306
+```
+
+## Estrutura do Projeto
+
+```
+overtime-tracker/
+├── main.c              # Lógica da aplicação e interface
+├── database.c          # Operações de banco de dados
+├── database.h          # Declarações de funções do banco
+├── interface.c         # Componentes de interface reutilizáveis
+├── interface.h         # Declarações de funções da interface
+└── init.sql            # Script de inicialização do banco
+```
+
 ## Compilação e Execução
 
 1. Abra o arquivo `Overtime Tracker.cbp` no Code::Blocks
-2. Compile o projeto: `Ctrl + F9`
-3. Aguarde a mensagem de sucesso na saída
-4. Execute o programa: `Ctrl + F10`
-5. Teste o cliente com as credenciais:
-- **Usuário**: `gestor`
-- **Senha**: `admin123`
+2. Compile e execute o projeto: `F9`
+
+## Uso do Sistema
+
+### Credenciais de Teste
+
+O sistema vem com dois usuários pré-cadastrados:
+
+| Usuário | Senha | Tipo | Saldo de Horas |
+|---------|-------|------|----------------|
+| otavio  | 1234  | GESTOR | 0.00 |
+| breno   | 1234  | USER | 25.50 |
+
+### Painel do Funcionário (USER)
+
+Ao fazer login como funcionário, você terá acesso a:
+
+#### Dashboard
+- Visualização do saldo atual no banco de horas
+- Informações sobre a carga horária semanal
+- Lista de todos os requerimentos realizados com seus respectivos status
+
+#### Novo Requerimento
+1. Clique no botão "Novo requerimento"
+2. Selecione a data desejada para a folga (deve ser uma data futura)
+3. Ajuste a quantidade de horas usando o controle deslizante
+4. Adicione observações para o gestor (opcional)
+5. Clique em "Enviar Requerimento"
+
+**Observações**:
+- O botão de requerimento fica desabilitado quando não há saldo de horas extras
+- O sistema impede requerimentos para datas passadas
+- A quantidade máxima de horas é limitada ao saldo disponível
+
+#### Acompanhamento
+- A lista de requerimentos é atualizada automaticamente a cada 2 segundos
+- Status possíveis: PENDENTE, APROVADO, NEGADO
+- Cada requerimento exibe: data, horas solicitadas, observações e status
+
+### Painel do Gestor (GESTOR)
+
+Ao fazer login como gestor, você terá acesso a:
+
+#### Dashboard do Gestor
+- Contador de requerimentos pendentes de análise
+- Acesso rápido às funcionalidades administrativas
+
+#### Gerir Funcionários
+Permite o gerenciamento completo da equipe:
+
+**Criar Novo Usuário**:
+1. Clique em "Criar novo usuário"
+2. Preencha os campos obrigatórios:
+   - Nome de usuário (único)
+   - Senha
+   - Cargo (USER ou GESTOR)
+   - Horas semanais de trabalho
+3. Clique em "Salvar"
+
+**Editar Usuário**:
+1. Clique em "Editar" no usuário desejado
+2. Modifique as informações necessárias
+3. Clique em "Salvar"
+
+**Excluir Usuário**:
+1. Clique em "Excluir" no usuário desejado
+2. O usuário e todos os seus requerimentos serão removidos
+
+#### Gerir Requerimentos
+Permite analisar e responder às solicitações de folga:
+
+**Visualização**:
+- Lista completa de todos os requerimentos do sistema
+- Informações exibidas: funcionário, data, horas solicitadas, observações e status
+- Atualização automática a cada 2 segundos
+
+**Análise de Requerimentos**:
+1. Revise os detalhes do requerimento
+2. Clique em "Deferir" para aprovar:
+   - O status muda para APROVADO
+   - O saldo de horas do funcionário é atualizado automaticamente
+3. Clique em "Indeferir" para negar:
+   - O status muda para NEGADO
+   - O saldo de horas do funcionário permanece inalterado
+
+**Observações**:
+- Requerimentos já aprovados ou negados não podem ser modificados
+- Os botões ficam desabilitados após a decisão
+- O saldo é deduzido apenas quando o requerimento é aprovado
+
+## Recursos de Segurança
+
+O sistema implementa diversas medidas de segurança:
+
+- Proteção contra SQL Injection usando `mysql_real_escape_string()`
+- Validação de entrada do usuário em todos os formulários
+- Tratamento adequado de erros em operações de banco de dados
+- Verificação de ponteiros NULL antes de uso
+- Gerenciamento correto de memória com liberação de recursos
+- Escape de caracteres especiais em queries SQL
+
+> **Importante**: Para uso em produção, é altamente recomendado implementar hash de senhas usando algoritmos como BCrypt ou Argon2.
+
+## Solução de Problemas
+
+### Erro de Compilação
+
+**Problema**: `fatal error: gtk/gtk.h: No such file or directory`
+
+**Solução**: Verifique se o GTK4 foi instalado corretamente executando:
+```bash
+pkg-config --modversion gtk4
+```
+
+### Erro de Conexão com MySQL
+
+**Problema**: `Erro ao conectar: Access denied for user`
+
+**Solução**: Verifique as credenciais no arquivo `database.h` e certifique-se de que o MySQL Server está em execução.
+
+### Erro de Locale (Vírgula/Ponto Decimal)
+
+**Problema**: `Column count doesn't match value count at row 1`
+
+**Solução**: O sistema já está configurado para usar ponto decimal em valores numéricos através de `setlocale(LC_NUMERIC, "C")` no `main()`.
+
+### Sistema Fechado para Requerimentos
+
+O sistema possui um horário limite configurado. Para modificar, altere a constante no `main.c`:
+```c
+#define SYSTEM_LOCK_TIME 999  // Hora limite (formato 24h)
+```
 
 ## Referências
 
@@ -71,3 +219,19 @@ source C:\Users\SeuUsuario\caminho\para\o\projeto\init.sql
 - [Utilização da linha do comando do Cliente MySQL](https://www.treinaweb.com.br/blog/primeiros-passos-com-mysql)
 - [Conversão de tipos em C](https://www.geeksforgeeks.org/c/c-typecasting/)
 - [Definição de estruturas em C](https://www.geeksforgeeks.org/c/structures-c/)
+- [Proteção contra SQL Injection](https://dev.mysql.com/doc/c-api/8.0/en/mysql-real-escape-string.html)
+- [Gerenciamento de memória em GLib](https://docs.gtk.org/glib/memory.html)
+
+## Contribuindo
+
+Para contribuir com o projeto:
+
+1. Faça um fork do repositório
+2. Crie uma branch para sua feature (`git checkout -b feature/MinhaFeature`)
+3. Commit suas mudanças (`git commit -m 'Adiciona MinhaFeature'`)
+4. Push para a branch (`git push origin feature/MinhaFeature`)
+5. Abra um Pull Request
+
+## Licença
+
+Este projeto foi desenvolvido como Projeto Integrador da Universidade Vila Velha.
