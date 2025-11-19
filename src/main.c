@@ -254,22 +254,24 @@ GtkWidget* create_dashboard_view(App_data* app_data)
 
     if (app_data->user.overtime_hours <= 0)
     {
-        request_button = gtk_button_new_with_label("Sem saldo de horas extras");
+        int size[] = {-1, -1}, margin[] = {0, 0, 0, 0};
+        request_button = create_button("Sem saldo de horas extras", NORMAL, NULL, NULL,
+                                      NULL, NULL, size, margin);
         gtk_widget_set_sensitive(request_button, FALSE);
     }
     else if (is_system_closed())
     {
-        request_button = gtk_button_new_with_label("Sistema fechado para requerimentos");
+        int size[] = {-1, -1}, margin[] = {0, 0, 0, 0};
+        request_button = create_button("Sistema fechado para requerimentos", NORMAL, NULL, NULL,
+                                      NULL, NULL, size, margin);
         gtk_widget_set_sensitive(request_button, FALSE);
     }
     else
     {
-        request_button = gtk_button_new_with_label("📝 Novo requerimento");
-        gtk_widget_add_css_class(request_button, "pill");
-        gtk_widget_add_css_class(request_button, "suggested-action");
-        g_object_set_data(G_OBJECT(request_button), "stack-child-name", "request");
-        g_signal_connect(request_button, "clicked", G_CALLBACK(on_navigation_button_clicked),
-                        app_data->stack);
+        int size[] = {-1, -1}, margin[] = {0, 0, 0, 0};
+        request_button = create_button("📝 Novo requerimento", SUGGESTED,
+                                      G_CALLBACK(on_navigation_button_clicked), app_data->stack,
+                                      "stack-child-name", "request", size, margin);
     }
 
     gtk_box_append(GTK_BOX(button_box), request_button);
@@ -393,12 +395,11 @@ GtkWidget* create_request_view(App_data* app_data)
     gtk_widget_set_margin_top(vbox, 20);
     gtk_widget_set_margin_bottom(vbox, 20);
 
-    GtkWidget* back_button = gtk_button_new_with_label("← Voltar");
-    gtk_widget_add_css_class(back_button, "pill");
+    int back_size[] = {-1, -1}, back_margin[] = {0, 0, 0, 0};
+    GtkWidget* back_button = create_button("← Voltar", PILL,
+                                          G_CALLBACK(on_navigation_button_clicked), app_data->stack,
+                                          "stack-child-name", "dashboard", back_size, back_margin);
     gtk_widget_set_halign(back_button, GTK_ALIGN_START);
-    g_object_set_data(G_OBJECT(back_button), "stack-child-name", "dashboard");
-    g_signal_connect(back_button, "clicked", G_CALLBACK(on_navigation_button_clicked),
-                    app_data->stack);
     gtk_box_append(GTK_BOX(vbox), back_button);
 
     GtkWidget* title = gtk_label_new("Solicitar Folga");
@@ -443,8 +444,9 @@ GtkWidget* create_request_view(App_data* app_data)
     GtkWidget* output_label = gtk_label_new("");
     gtk_box_append(GTK_BOX(vbox), output_label);
 
-    GtkWidget* submit_button = gtk_button_new_with_label("Enviar Requerimento");
-    gtk_widget_add_css_class(submit_button, "suggested-action");
+    int submit_size[] = {-1, -1}, submit_margin[] = {0, 0, 0, 0};
+    GtkWidget* submit_button = create_button("Enviar Requerimento", SUGGESTED, NULL, NULL,
+                                            NULL, NULL, submit_size, submit_margin);
     gtk_box_append(GTK_BOX(vbox), submit_button);
 
     Request_data* req_data = g_malloc(sizeof(Request_data));
@@ -665,17 +667,18 @@ static void refresh_users_list(GtkWidget* list_box, MYSQL* socket)
         gtk_widget_set_halign(button_box, GTK_ALIGN_END);
         gtk_widget_set_hexpand(button_box, TRUE);
 
-        GtkWidget* edit_button = gtk_button_new_with_label("Editar");
-        gtk_widget_add_css_class(edit_button, "pill");
-        g_object_set_data(G_OBJECT(edit_button), "user_id", GINT_TO_POINTER(atoi(row[0])));
-        g_signal_connect(edit_button, "clicked", G_CALLBACK(on_edit_user_clicked), list_box);
+        int edit_size[] = {-1, -1}, edit_margin[] = {0, 0, 0, 0};
+        GtkWidget* edit_button = create_button("Editar", PILL,
+                                              G_CALLBACK(on_edit_user_clicked), list_box,
+                                              "user_id", GINT_TO_POINTER(atoi(row[0])),
+                                              edit_size, edit_margin);
         gtk_box_append(GTK_BOX(button_box), edit_button);
 
-        GtkWidget* delete_button = gtk_button_new_with_label("Excluir");
-        gtk_widget_add_css_class(delete_button, "pill");
-        gtk_widget_add_css_class(delete_button, "destructive-action");
-        g_object_set_data(G_OBJECT(delete_button), "user_id", GINT_TO_POINTER(atoi(row[0])));
-        g_signal_connect(delete_button, "clicked", G_CALLBACK(on_delete_user_clicked), list_box);
+        int delete_size[] = {-1, -1}, delete_margin[] = {0, 0, 0, 0};
+        GtkWidget* delete_button = create_button("Excluir", DESTRUCTIVE,
+                                                G_CALLBACK(on_delete_user_clicked), list_box,
+                                                "user_id", GINT_TO_POINTER(atoi(row[0])),
+                                                delete_size, delete_margin);
         gtk_box_append(GTK_BOX(button_box), delete_button);
 
         gtk_box_append(GTK_BOX(user_row), button_box);
@@ -693,12 +696,11 @@ GtkWidget* create_manage_users_view(App_data* app_data)
     gtk_widget_set_margin_top(vbox, 20);
     gtk_widget_set_margin_bottom(vbox, 20);
 
-    GtkWidget* back_button = gtk_button_new_with_label("← Voltar");
-    gtk_widget_add_css_class(back_button, "pill");
+    int back_size[] = {-1, -1}, back_margin[] = {0, 0, 0, 0};
+    GtkWidget* back_button = create_button("← Voltar", PILL,
+                                          G_CALLBACK(on_navigation_button_clicked), app_data->stack,
+                                          "stack-child-name", "dashboard", back_size, back_margin);
     gtk_widget_set_halign(back_button, GTK_ALIGN_START);
-    g_object_set_data(G_OBJECT(back_button), "stack-child-name", "dashboard");
-    g_signal_connect(back_button, "clicked", G_CALLBACK(on_navigation_button_clicked),
-                    app_data->stack);
     gtk_box_append(GTK_BOX(vbox), back_button);
 
     GtkWidget* title = gtk_label_new("Gerenciar Usuários");
@@ -711,11 +713,11 @@ GtkWidget* create_manage_users_view(App_data* app_data)
     gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled), list_box);
     gtk_box_append(GTK_BOX(vbox), scrolled);
 
-    GtkWidget* create_button = gtk_button_new_with_label("➕ Criar novo usuário");
-    gtk_widget_add_css_class(create_button, "pill");
-    gtk_widget_add_css_class(create_button, "suggested-action");
-    g_signal_connect(create_button, "clicked", G_CALLBACK(on_edit_user_clicked), list_box);
-    gtk_box_append(GTK_BOX(vbox), create_button);
+    int create_size[] = {-1, -1}, create_margin[] = {0, 0, 0, 0};
+    GtkWidget* create__user_button = create_button("➕ Criar novo usuário", SUGGESTED,
+                                            G_CALLBACK(on_edit_user_clicked), list_box,
+                                            NULL, NULL, create_size, create_margin);
+    gtk_box_append(GTK_BOX(vbox), create__user_button);
 
     g_object_set_data(G_OBJECT(list_box), "app_data", app_data);
     refresh_users_list(list_box, app_data->socket);
@@ -836,14 +838,15 @@ static void refresh_requests_admin_list(GtkWidget* list_box, App_data* app_data)
             GtkWidget* actions = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
             gtk_widget_set_halign(actions, GTK_ALIGN_CENTER);
 
-            GtkWidget* approve_btn = gtk_button_new_with_label("Deferir");
-            gtk_widget_add_css_class(approve_btn, "pill");
+            int approve_size[] = {-1, -1}, approve_margin[] = {0, 0, 0, 0};
+            GtkWidget* approve_btn = create_button("Deferir", PILL, NULL, NULL,
+                                                  NULL, NULL, approve_size, approve_margin);
             g_object_set_data(G_OBJECT(approve_btn), "request_id", GINT_TO_POINTER(id));
             g_object_set_data(G_OBJECT(approve_btn), "new_status", "APROVADO");
 
-            GtkWidget* reject_btn = gtk_button_new_with_label("Indeferir");
-            gtk_widget_add_css_class(reject_btn, "pill");
-            gtk_widget_add_css_class(reject_btn, "destructive-action");
+            int reject_size[] = {-1, -1}, reject_margin[] = {0, 0, 0, 0};
+            GtkWidget* reject_btn = create_button("Indeferir", DESTRUCTIVE, NULL, NULL,
+                                                 NULL, NULL, reject_size, reject_margin);
             g_object_set_data(G_OBJECT(reject_btn), "request_id", GINT_TO_POINTER(id));
             g_object_set_data(G_OBJECT(reject_btn), "new_status", "NEGADO");
 
@@ -894,12 +897,11 @@ GtkWidget* create_manage_requests_view(App_data* app_data)
     gtk_widget_set_margin_top(vbox, 20);
     gtk_widget_set_margin_bottom(vbox, 20);
 
-    GtkWidget* back_button = gtk_button_new_with_label("← Voltar");
-    gtk_widget_add_css_class(back_button, "pill");
+    int back_size[] = {-1, -1}, back_margin[] = {0, 0, 0, 0};
+    GtkWidget* back_button = create_button("← Voltar", PILL,
+                                          G_CALLBACK(on_navigation_button_clicked), app_data->stack,
+                                          "stack-child-name", "dashboard", back_size, back_margin);
     gtk_widget_set_halign(back_button, GTK_ALIGN_START);
-    g_object_set_data(G_OBJECT(back_button), "stack-child-name", "dashboard");
-    g_signal_connect(back_button, "clicked", G_CALLBACK(on_navigation_button_clicked),
-                    app_data->stack);
     gtk_box_append(GTK_BOX(vbox), back_button);
 
     GtkWidget* title = gtk_label_new("Gerir requerimentos");
@@ -1164,9 +1166,7 @@ static void login_panel(GtkApplication* app, MYSQL* socket)
     gtk_widget_add_css_class(username_label, "heading");
     gtk_box_append(GTK_BOX(center_box), username_label);
 
-    GtkWidget* username_input = gtk_entry_new();
-    gtk_entry_set_placeholder_text(GTK_ENTRY(username_input), "Digite seu ID");
-    gtk_entry_set_visibility(GTK_ENTRY(username_input), TRUE);
+    GtkWidget* username_input = create_input_text("ID de Colaborador", "Digite seu ID", 0);
     gtk_widget_set_size_request(username_input, -1, 40);
     gtk_box_append(GTK_BOX(center_box), username_input);
 
@@ -1176,9 +1176,7 @@ static void login_panel(GtkApplication* app, MYSQL* socket)
     gtk_widget_set_margin_top(password_label, 10);
     gtk_box_append(GTK_BOX(center_box), password_label);
 
-    GtkWidget* password_input = gtk_entry_new();
-    gtk_entry_set_placeholder_text(GTK_ENTRY(password_input), "Digite sua senha");
-    gtk_entry_set_visibility(GTK_ENTRY(password_input), FALSE);
+    GtkWidget* password_input = create_input_text("Senha", "Digite sua senha", 1);
     gtk_widget_set_size_request(password_input, -1, 40);
     gtk_box_append(GTK_BOX(center_box), password_input);
 
@@ -1196,10 +1194,9 @@ static void login_panel(GtkApplication* app, MYSQL* socket)
     login_data->socket = socket;
 
     int size[] = {-1, 45}, margin[] = {15, 0, 0, 0};
-    GtkWidget* button_login = create_button(
-        "Entrar", SUGGESTED, G_CALLBACK(on_login_button_clicked), login_data,
-        NULL, NULL, size, margin
-    );
+    GtkWidget* button_login = create_button("Entrar", SUGGESTED,
+                                           G_CALLBACK(on_login_button_clicked), login_data,
+                                           NULL, NULL, size, margin);
 
     gtk_box_append(GTK_BOX(center_box), button_login);
 
