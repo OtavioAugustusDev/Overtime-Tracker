@@ -20,9 +20,9 @@ Sistema gerenciador de horas extras desenvolvido em C com interface gráfica GTK
 
 ## Instalação das Dependências
 
-### 1. GTK4 e Utilitários
+### Biblioteca GTK4 e utilitários
 
-Abra o terminal **MSYS2 MSYS** e execute:
+No terminal **MSYS2 MSYS** execute:
 
 ```bash
 pacman -Syu
@@ -33,25 +33,25 @@ pacman -S mingw-w64-x86_64-glade
 pacman -Syu
 ```
 
-Ao final, verifique se a instalação correu bem executando o seguinte comando no terminal **MSYS2 MINGW64**:
+Ao final, no terminal **MSYS2 MINGW64** verifique se a instalação foi bem-sucedida executando:
 
 ```bash
 pkg-config --cflags gtk4
 ```
 
-> **Observação**: Caso o comando não seja encontrado, repita os passos de instalação novamente.
+> **Observação**: Caso enfrente algum problema, repita os passos de instalação novamente.
 
-## Configuração do Banco de Dados
+## Criação do Banco de Dados
 
 1. Abra o **MySQL Command Line Client**
 2. Faça login com a senha do usuário `root`
-3. Execute o arquivo de inicialização:
+3. Execute o arquivo:
 
 ```sql
 source C:\Users\SeuUsuario\caminho\para\o\projeto\init.sql
 ```
 
-4. As credenciais do banco de dados se encontram no cabeçalho `database.h`:
+As informações do banco de dados se encontram no cabeçalho `database.h`:
 
 ```c
 #define DATABASE_ADDRESS "localhost"
@@ -61,16 +61,13 @@ source C:\Users\SeuUsuario\caminho\para\o\projeto\init.sql
 #define DATABASE_PORT 3306
 ```
 
-## Estrutura do Projeto
+## Arquivos
 
 ```
 overtime-tracker/
-├── main.c              # Lógica da aplicação e interface
-├── database.c          # Operações de banco de dados
-├── database.h          # Declarações de funções do banco
-├── interface.c         # Componentes de interface reutilizáveis
-├── interface.h         # Declarações de funções da interface
-└── init.sql            # Script de inicialização do banco
+├── main.c              # Lógica da aplicação e callbacks da interface
+├── database.c          # Operações de leitura e escrita no banco de dados
+├── interface.c         # Componentes de interface
 ```
 
 ## Compilação e Execução
@@ -82,100 +79,48 @@ overtime-tracker/
 
 ### Credenciais de Teste
 
-O sistema vem com dois usuários pré-cadastrados para fins de teste:
+O arquivo `init.sql` cria dois usuários padrão:
 
-| Usuário | Senha | Tipo |
+| Usuário | Senha | Nível |
 |---------|-------|------|
 | otavio  | 1234  | GESTOR |
 | breno   | 1234  | USER |
 
-### Painel do Funcionário (USER)
+### Painel do Colaborador
 
-Ao fazer login em uma conta nível funcionário, você terá acesso a:
+Ao fazer login em uma conta nível COLABORADOR, você terá acesso as seguintes telas:
 
 #### Dashboard
 - Visualização do saldo atual no banco de horas
 - Informações sobre a carga horária semanal
-- Lista de todos os requerimentos realizados com seus respectivos status
+- Lista de todos os requerimentos atualizada a cada 2 segundos
 
-#### Novo Requerimento
-1. Clique no botão "Novo requerimento"
-2. Selecione a data desejada para a folga (deve ser uma data futura)
-3. Ajuste a quantidade de horas usando o controle deslizante
-4. Adicione observações para o gestor (opcional)
-5. Clique em "Enviar Requerimento"
+#### Criação de requerimento
+1. Acessível apartir do botão "Novo requerimento"
+2. Dispõe de um calendário para seleção da data desejada para a folga
+3. Controle deslizante para ajuste da quantidade de horas pretendida
+4. Campo para escrita de notas para o gestor, de caráter opcional
+5. Os dados inseridos são validados pelo sistema antes de serem enviados ao gestor
 
-**Observações**:
-- O botão de requerimento fica desabilitado quando não há saldo de horas extras
-- O sistema impede requerimentos para datas passadas
-- A quantidade máxima de horas é limitada ao saldo disponível
+> **Validação automática:**
+> O envio de novos requerimentos só é permitido dentro do horário de funcionamento e quando há saldo disponível na conta. O sistema impede requerimentos vazios ou com datas passadas além de limitar a quantidade máxima de horas ao saldo disponível na conta do colaborador.
 
-#### Acompanhamento
-- A lista de requerimentos é atualizada automaticamente a cada 2 segundos
-- Status possíveis: PENDENTE, APROVADO, NEGADO
-- Cada requerimento exibe: data, horas solicitadas, observações e status
+### Painel do Gestor
 
-### Painel do Gestor (GESTOR)
-
-Ao fazer login em uma conta nível gestor, você terá acesso a:
+Ao fazer login em uma conta nível GESTOR, você terá acesso as seguintes telas:
 
 #### Dashboard do Gestor
 - Contador de requerimentos pendentes de análise
-- Acesso rápido às funcionalidades administrativas
+- Acesso às opções administrativas de gerência de usuários
 
-#### Gerir Funcionários
-Permite o gerenciamento completo da equipe:
-
-**Criar Novo Usuário**:
-1. Clique em "Criar novo usuário"
-2. Preencha os campos obrigatórios:
-   - Nome de usuário (único)
-   - Senha
-   - Cargo (USER ou GESTOR)
-   - Horas semanais de trabalho
-3. Clique em "Salvar"
-
-**Editar Usuário**:
-1. Clique em "Editar" no usuário desejado
-2. Modifique as informações necessárias
-3. Clique em "Salvar"
-
-**Excluir Usuário**:
-1. Clique em "Excluir" no usuário desejado
-2. O usuário e todos os seus requerimentos serão removidos
+#### Gerir Colaboradores
+Permite o cadastro de novos colaboradores, edição e exclusão de usuários já cadastrados.
 
 #### Gerir Requerimentos
-Permite analisar e responder às solicitações de folga:
+Permite a visualização completa dos dados dos requerimentos recebidos e as opções para aprovação ou rejeição dos pedidos.
 
-**Visualização**:
-- Lista completa de todos os requerimentos do sistema
-- Informações exibidas: funcionário, data, horas solicitadas, observações e status
-- Atualização automática a cada 2 segundos
-
-**Análise de Requerimentos**:
-1. Revise os detalhes do requerimento
-2. Clique em "Deferir" para aprovar:
-   - O status muda para APROVADO
-   - O saldo de horas do funcionário é atualizado automaticamente
-3. Clique em "Indeferir" para negar:
-   - O status muda para NEGADO
-   - O saldo de horas do funcionário permanece inalterado
-
-**Observações**:
-- Requerimentos já aprovados ou negados não podem ser modificados
-- Os botões ficam desabilitados após a decisão
-- O saldo é deduzido apenas quando o requerimento é aprovado
-
-## Recursos de Segurança
-
-O sistema implementa diversas medidas de segurança:
-
-- Proteção contra SQL Injection usando `mysql_real_escape_string()`
-- Validação de entrada do usuário em todos os formulários
-- Tratamento adequado de erros em operações de banco de dados
-- Verificação de ponteiros NULL antes de uso
-- Gerenciamento correto de memória com liberação de recursos
-- Escape de caracteres especiais em queries SQL
+> **Observação**:
+> O saldo é automaticamente reduzido da conta do colaborador quando o requerimento é aprovado.
 
 ## Sistema Fechado para Requerimentos
 
