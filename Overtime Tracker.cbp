@@ -48,7 +48,11 @@
 		<Unit filename="include/database.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="include/interface.h" />
 		<Unit filename="src/database.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/interface.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/main.c">

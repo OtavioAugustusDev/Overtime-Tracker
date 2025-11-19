@@ -26,10 +26,8 @@ CREATE TABLE IF NOT EXISTS time_off_requests (
 CREATE INDEX idx_user_requests ON time_off_requests(user_id);
 CREATE INDEX idx_status ON time_off_requests(status);
 
--- Usuário gestor de exemplo
 INSERT INTO users (username, password, overtime_hours, work_hours, role)
-VALUES ('gestor', 'admin123', 0.00, 40.00, 'GESTOR');
+VALUES ('otavio', '1234', 0.00, 40.00, 'GESTOR');
 
--- Usuário comum de exemplo
 INSERT INTO users (username, password, overtime_hours, work_hours, role)
-VALUES ('colaborador', '1234', 25.50, 40.00, 'USER');
+VALUES ('breno', '1234', 25.50, 40.00, 'USER');

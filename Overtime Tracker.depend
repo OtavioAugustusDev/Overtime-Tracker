@@ -1,12 +1,14 @@
 # depslib dependency file v1.0
-1763424499 source:c:\users\otavioaugustus\desktop\overtime-tracker\src\main.c
+1763513629 source:c:\users\otavioaugustus\desktop\overtime-tracker\src\main.c
 	<stdio.h>
 	<string.h>
 	<stdbool.h>
 	<stdlib.h>
+	<locale.h>
 	<mysql.h>
 	<gtk/gtk.h>
 	"database.h"
+	"interface.h"
 
 1761611270 c:\msys64\mingw64\include\stdio.h
 	<corecrt_stdio_config.h>
@@ -4487,16 +4489,24 @@
 1759645852 c:\msys64\mingw64\include\gtk-4.0\gtk\gtkwindowhandle.h
 	<gtk/gtkwidget.h>
 
-1763427098 c:\users\otavioaugustus\desktop\overtime-tracker\include\database.h
+1763512109 c:\users\otavioaugustus\desktop\overtime-tracker\include\database.h
+	<mysql.h>
 
-1763427287 source:c:\users\otavioaugustus\desktop\overtime-tracker\src\database.c
+1763513356 source:c:\users\otavioaugustus\desktop\overtime-tracker\src\database.c
 	<stdio.h>
+	<stdlib.h>
+	<string.h>
 	<mysql.h>
 	"database.h"
 
-1763429284 source:c:\users\otavioaugustus\desktop\overtime-tracker\src\interface.c
+1763511927 source:c:\users\otavioaugustus\desktop\overtime-tracker\src\interface.c
 	<gtk/gtk.h>
 	"interface.h"
 
-1763429542 c:\users\otavioaugustus\desktop\overtime-tracker\include\interface.h
+1763511916 c:\users\otavioaugustus\desktop\overtime-tracker\include\interface.h
+	<gtk/gtk.h>
+
+1761611270 c:\msys64\mingw64\include\locale.h
+	<crtdefs.h>
+	<stdio.h>
 
