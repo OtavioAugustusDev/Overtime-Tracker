@@ -82,16 +82,16 @@ overtime-tracker/
 
 ### Credenciais de Teste
 
-O sistema vem com dois usuários pré-cadastrados:
+O sistema vem com dois usuários pré-cadastrados para fins de teste:
 
-| Usuário | Senha | Tipo | Saldo de Horas |
-|---------|-------|------|----------------|
-| otavio  | 1234  | GESTOR | 0.00 |
-| breno   | 1234  | USER | 25.50 |
+| Usuário | Senha | Tipo |
+|---------|-------|------|
+| otavio  | 1234  | GESTOR |
+| breno   | 1234  | USER |
 
 ### Painel do Funcionário (USER)
 
-Ao fazer login como funcionário, você terá acesso a:
+Ao fazer login em uma conta nível funcionário, você terá acesso a:
 
 #### Dashboard
 - Visualização do saldo atual no banco de horas
@@ -117,7 +117,7 @@ Ao fazer login como funcionário, você terá acesso a:
 
 ### Painel do Gestor (GESTOR)
 
-Ao fazer login como gestor, você terá acesso a:
+Ao fazer login em uma conta nível gestor, você terá acesso a:
 
 #### Dashboard do Gestor
 - Contador de requerimentos pendentes de análise
@@ -177,13 +177,11 @@ O sistema implementa diversas medidas de segurança:
 - Gerenciamento correto de memória com liberação de recursos
 - Escape de caracteres especiais em queries SQL
 
-> **Importante**: Para uso em produção, é altamente recomendado implementar hash de senhas usando algoritmos como BCrypt ou Argon2.
-
 ## Sistema Fechado para Requerimentos
 
 O sistema possui um horário limite configurado para rejeitar abertura de novos requerimentos, a propriedade pode ser consultada no arquivo principal `main.c`:
 ```c
-#define SYSTEM_LOCK_TIME 999  // Hora limite (formato 24h)
+#define SYSTEM_LOCK_TIME 999
 ```
 
 ## Referências
