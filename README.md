@@ -51,12 +51,12 @@ pkg-config --cflags gtk4
 source C:\Users\SeuUsuario\caminho\para\o\projeto\init.sql
 ```
 
-4. Configure as credenciais no arquivo `database.h`:
+4. As credenciais do banco de dados se encontram no cabeçalho `database.h`:
 
 ```c
 #define DATABASE_ADDRESS "localhost"
 #define DATABASE_USER "root"
-#define DATABASE_PASSWORD "sua_senha_aqui"
+#define DATABASE_PASSWORD "123"
 #define DATABASE_NAME "pineapple"
 #define DATABASE_PORT 3306
 ```
@@ -70,27 +70,13 @@ overtime-tracker/
 ├── database.h          # Declarações de funções do banco
 ├── interface.c         # Componentes de interface reutilizáveis
 ├── interface.h         # Declarações de funções da interface
-└── init.sql           # Script de inicialização do banco
+└── init.sql            # Script de inicialização do banco
 ```
 
 ## Compilação e Execução
 
-### Via Code::Blocks
-
 1. Abra o arquivo `Overtime Tracker.cbp` no Code::Blocks
-2. Compile o projeto: `Ctrl + F9`
-3. Aguarde a mensagem de sucesso na saída
-4. Execute o programa: `Ctrl + F10`
-
-### Via Linha de Comando
-
-```bash
-gcc -o overtime_tracker main.c database.c interface.c \
-    `pkg-config --cflags --libs gtk4` \
-    `mysql_config --cflags --libs`
-
-./overtime_tracker
-```
+2. Compile e execute o projeto: `F9`
 
 ## Uso do Sistema
 
