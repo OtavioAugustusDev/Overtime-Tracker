@@ -1,7 +1,7 @@
 # Overtime Tracker
 Sistema gerenciador de horas extras desenvolvido em C com interface gráfica GTK4 e banco de dados MySQL.
 
-<img width="1365" height="716" alt="image" src="https://github.com/user-attachments/assets/59a5b870-e909-43f0-ad97-7413c6f76484" />
+<img width="1365" height="714" alt="image" src="https://github.com/user-attachments/assets/631b17be-2e11-442d-adfa-e6d71b8112d8" />
 
 ## Configuração do Ambiente de Desenvolvimento
 
