@@ -179,32 +179,9 @@ O sistema implementa diversas medidas de segurança:
 
 > **Importante**: Para uso em produção, é altamente recomendado implementar hash de senhas usando algoritmos como BCrypt ou Argon2.
 
-## Solução de Problemas
+## Sistema Fechado para Requerimentos
 
-### Erro de Compilação
-
-**Problema**: `fatal error: gtk/gtk.h: No such file or directory`
-
-**Solução**: Verifique se o GTK4 foi instalado corretamente executando:
-```bash
-pkg-config --modversion gtk4
-```
-
-### Erro de Conexão com MySQL
-
-**Problema**: `Erro ao conectar: Access denied for user`
-
-**Solução**: Verifique as credenciais no arquivo `database.h` e certifique-se de que o MySQL Server está em execução.
-
-### Erro de Locale (Vírgula/Ponto Decimal)
-
-**Problema**: `Column count doesn't match value count at row 1`
-
-**Solução**: O sistema já está configurado para usar ponto decimal em valores numéricos através de `setlocale(LC_NUMERIC, "C")` no `main()`.
-
-### Sistema Fechado para Requerimentos
-
-O sistema possui um horário limite configurado. Para modificar, altere a constante no `main.c`:
+O sistema possui um horário limite configurado para rejeitar abertura de novos requerimentos, a propriedade pode ser consultada no arquivo principal `main.c`:
 ```c
 #define SYSTEM_LOCK_TIME 999  // Hora limite (formato 24h)
 ```
@@ -221,17 +198,3 @@ O sistema possui um horário limite configurado. Para modificar, altere a consta
 - [Definição de estruturas em C](https://www.geeksforgeeks.org/c/structures-c/)
 - [Proteção contra SQL Injection](https://dev.mysql.com/doc/c-api/8.0/en/mysql-real-escape-string.html)
 - [Gerenciamento de memória em GLib](https://docs.gtk.org/glib/memory.html)
-
-## Contribuindo
-
-Para contribuir com o projeto:
-
-1. Faça um fork do repositório
-2. Crie uma branch para sua feature (`git checkout -b feature/MinhaFeature`)
-3. Commit suas mudanças (`git commit -m 'Adiciona MinhaFeature'`)
-4. Push para a branch (`git push origin feature/MinhaFeature`)
-5. Abra um Pull Request
-
-## Licença
-
-Este projeto foi desenvolvido como Projeto Integrador da Universidade Vila Velha.
