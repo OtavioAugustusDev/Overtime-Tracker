@@ -18,7 +18,7 @@ Sistema gerenciador de horas extras desenvolvido em C com interface gráfica GTK
 
 > **Observação**: Instale todos os programas nos diretórios padrão. Caso contrário, será necessário configurar os caminhos manualmente na IDE.
 
-## Instalação das Dependências
+## Instalação das dependências
 
 ### Biblioteca GTK4 e utilitários
 
@@ -61,6 +61,11 @@ As informações do banco de dados se encontram no cabeçalho `database.h`:
 #define DATABASE_PORT 3306
 ```
 
+## Compilação e Execução
+
+1. Abra o arquivo `Overtime Tracker.cbp` no Code::Blocks
+2. Compile e execute o projeto: `F9`
+
 ## Arquivos
 
 ```
@@ -70,30 +75,23 @@ overtime-tracker/
 ├── interface.c         # Componentes de interface
 ```
 
-## Compilação e Execução
+## Manual de uso da aplicação
 
-1. Abra o arquivo `Overtime Tracker.cbp` no Code::Blocks
-2. Compile e execute o projeto: `F9`
-
-## Uso do Sistema
-
-### Credenciais de Teste
-
-O arquivo `init.sql` cria dois usuários padrão:
+Ao executar o arquivo `init.sql`, o SGBD do MySQL criará dois usuários padrão:
 
 | Usuário | Senha | Nível |
 |---------|-------|------|
 | otavio  | 1234  | GESTOR |
 | breno   | 1234  | USER |
 
-### Painel do Colaborador
+### Operações nível colaborador
 
 Ao fazer login em uma conta nível COLABORADOR, você terá acesso as seguintes telas:
 
 #### Dashboard
 - Visualização do saldo atual no banco de horas
 - Informações sobre a carga horária semanal
-- Lista de todos os requerimentos atualizada a cada 2 segundos
+- Lista dos requerimentos feitos (atualizada a cada 2 segundos)
 
 #### Criação de requerimento
 1. Acessível apartir do botão "Novo requerimento"
@@ -105,7 +103,7 @@ Ao fazer login em uma conta nível COLABORADOR, você terá acesso as seguintes 
 > **Validação automática:**
 > O envio de novos requerimentos só é permitido dentro do horário de funcionamento e quando há saldo disponível na conta. O sistema impede requerimentos vazios ou com datas passadas além de limitar a quantidade máxima de horas ao saldo disponível na conta do colaborador.
 
-### Painel do Gestor
+### Operações nível gestor
 
 Ao fazer login em uma conta nível GESTOR, você terá acesso as seguintes telas:
 
@@ -113,21 +111,25 @@ Ao fazer login em uma conta nível GESTOR, você terá acesso as seguintes telas
 - Contador de requerimentos pendentes de análise
 - Acesso às opções administrativas de gerência de usuários
 
-#### Gerir Colaboradores
+#### Gerência de colaboradores
 Permite o cadastro de novos colaboradores, edição e exclusão de usuários já cadastrados.
 
-#### Gerir Requerimentos
+#### Gerência de requerimentos
 Permite a visualização completa dos dados dos requerimentos recebidos e as opções para aprovação ou rejeição dos pedidos.
 
 > **Observação**:
-> O saldo é automaticamente reduzido da conta do colaborador quando o requerimento é aprovado.
+> O saldo é automaticamente reduzido da conta do colaborador quando o requerimento é aprovado. O sistema também possui um horário limite para abertura de novos requerimentos, a propriedade pode ser consultada no arquivo principal `main.c`:
+> ```c
+> #define SYSTEM_LOCK_TIME 999
+> ```
 
-## Sistema Fechado para Requerimentos
-
-O sistema possui um horário limite configurado para rejeitar abertura de novos requerimentos, a propriedade pode ser consultada no arquivo principal `main.c`:
-```c
-#define SYSTEM_LOCK_TIME 999
-```
+## Funcionalidades implementadas
+- Autenticação de usuário
+- Interface gráfica
+- Envio de requerimentos
+- Painel administrativo
+- Sistema próprio de gestão de usuários
+- Proteção contra SQL Injection
 
 ## Referências
 
