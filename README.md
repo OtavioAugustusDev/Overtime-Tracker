@@ -8,7 +8,7 @@
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-orange.svg)
 ![C](https://img.shields.io/badge/C-99-lightgrey.svg)
 
-*Uma solução corporativa completa para gestão de horas extras e folgas compensatórias, desenvolvida em C com interface gráfica GTK e banco de dados MySQL*
+*Solução completa para gestão de horas extras e folgas compensatórias, desenvolvida em C com interface gráfica GTK e banco de dados MySQL*
 
 <img width="1365" alt="Interface do Sistema" src="https://github.com/user-attachments/assets/631b17be-2e11-442d-adfa-e6d71b8112d8" />
 
@@ -25,7 +25,7 @@
 
 ## Visão Geral
 
-O **Sistema de Gerenciamento de Banco de Horas** é uma aplicação desktop robusta desenvolvida para empresas que necessitam controlar horas extras e folgas compensatórias de seus colaboradores. Construído com tecnologias consolidadas e focado em segurança, o sistema oferece uma interface intuitiva tanto para colaboradores quanto para gestores.
+O ***Overtime Tracker** é um Sistema de Gerenciamento de Banco de Horas** desktop, construído com tecnologias consolidadas e focado em segurança, o sistema oferece uma interface intuitiva tanto para colaboradores quanto para gestores.
 
 ### Características Principais
 
@@ -280,7 +280,8 @@ O sistema verifica automaticamente:
 - Disponibilidade de saldo suficiente
 - Horário de funcionamento do sistema
 - Completude dos dados obrigatórios
-- Validade da data selecionada
+- Validade da data selecionada (apenas datas futuras são permitidas)
+- Prevenção de seleção de datas passadas ou do dia atual
 
 **Restrições de Horário**
 O botão de novo requerimento é automaticamente desabilitado quando:
@@ -415,6 +416,8 @@ mysql_real_escape_string(socket, escaped_username, username, strlen(username));
 - Verificação de saldo antes de aprovações
 - Prevenção de valores negativos
 - Garantia de consistência transacional
+- Bloqueio de datas passadas ou do dia atual em requerimentos
+- Limite de horas no slider baseado no saldo disponível do colaborador
 
 **Restrições Temporais**
 ```c
@@ -422,9 +425,16 @@ mysql_real_escape_string(socket, escaped_username, username, strlen(username));
 #define SYSTEM_CLOSE_MINUTE 0
 ```
 
+**Sistema de Feedback Visual**
+- Botão de requerimento desabilitado automaticamente quando:
+  - Sistema fechado (após 18:00): Exibe "Sistema fechado"
+  - Sem saldo disponível: Exibe "Sem saldo disponível"
+- Mensagens de erro contextualizadas para cada tipo de validação
+- Indicadores visuais de sucesso/erro em operações
+
 ---
 
-## Configurações Avançadas
+## Configurações
 
 ### Ajuste de Horário do Sistema
 
@@ -448,23 +458,7 @@ Ajuste as credenciais em `database.h` conforme seu ambiente:
 #define DATABASE_PORT 3306            // Porta de conexão
 ```
 
-### Otimização de Performance
-
-O banco de dados inclui índices otimizados:
-
-```sql
-CREATE INDEX idx_user_requests ON time_off_requests(user_id);
-CREATE INDEX idx_status ON time_off_requests(status);
-```
-
-Para ambientes de alta carga, considere:
-- Ajuste de pool de conexões
-- Implementação de cache
-- Otimização de queries complexas
-
----
-
-## Solução de Problemas
+## Solução de problemas
 
 ### Erro de Conexão MySQL
 
@@ -535,5 +529,7 @@ Adicione `-lmysqlclient` nas opções de linkagem do compilador.
 ---
 
 <div align="center">
+
 **Desenvolvido com dedicação**
+
 </div>
