@@ -12,7 +12,6 @@
 
 <img width="1365" alt="Interface do Sistema" src="https://github.com/user-attachments/assets/631b17be-2e11-442d-adfa-e6d71b8112d8" />
 
-[Características](#características) •
 [Instalação](#instalação) •
 [Uso](#manual-de-uso) •
 [Arquitetura](#arquitetura-do-projeto) •
@@ -27,7 +26,7 @@
 
 ***Overtime Tracker** é um Sistema de Gerenciamento de Banco de Horas de plataforma Desktop feito para atender a um Projeto Integrador Universitário.
 
-### CVisão Geral
+### Visão Geral
 
 #### Painel para Colaboradores
 - **Dashboard interativo** com sisualização em tempo real do saldo de horas disponíveis
@@ -133,18 +132,6 @@ O script criará automaticamente:
 - Índices otimizados para performance
 - Dois usuários padrão para testes
 
-#### 3. Configuração das Credenciais
-
-As configurações de conexão do aplicativo estão definidas no cabeçalho `database.h`:
-
-```c
-#define DATABASE_ADDRESS "localhost"
-#define DATABASE_USER "root"
-#define DATABASE_PASSWORD "123"
-#define DATABASE_NAME "pineapple"
-#define DATABASE_PORT 3306
-```
-
 ### Compilação do Projeto
 
 1. Abra o arquivo `Overtime Tracker.cbp` no Code::Blocks
@@ -200,7 +187,7 @@ Interface declarativa criada com Glade:
 - Separação clara entre apresentação e lógica
 - Facilita manutenção e internacionalização
 
-### Fluxo de Dados
+### Fluxograma
 
 ```
 [Interface GTK] ←→ [main.c] ←→ [database.c] ←→ [MySQL Server]
@@ -222,7 +209,7 @@ Após executar o script `init.sql`, o sistema disponibiliza duas contas de teste
 | otavio  | 1234  | GESTOR          | 0.00h |
 | breno   | 1234  | COLABORADOR     | 25.50h |
 
-### Funcionalidades do Colaborador
+### Colaborador
 
 #### Dashboard Principal
 
@@ -280,7 +267,7 @@ O botão de novo requerimento é automaticamente desabilitado quando:
 | Fora de horário | "Sistema fechado" | Desabilitado |
 | Sem saldo | "Sem saldo disponível" | Desabilitado |
 
-### Funcionalidades do Gestor
+### Gestor
 
 #### Dashboard Administrativo
 
@@ -393,7 +380,7 @@ mysql_real_escape_string(socket, escaped_username, username, strlen(username));
 - Validação de credenciais no servidor
 - Sessões gerenciadas em memória
 
-### Validações de Negócio
+### Validações de dadps
 
 **Integridade de Dados**
 - Verificação de saldo antes de aprovações
@@ -401,32 +388,17 @@ mysql_real_escape_string(socket, escaped_username, username, strlen(username));
 - Garantia de consistência transacional
 - Bloqueio de datas passadas ou do dia atual em requerimentos
 - Limite de horas no slider baseado no saldo disponível do colaborador
-
-**Restrições Temporais**
-```c
-#define SYSTEM_CLOSE_HOUR 18
-#define SYSTEM_CLOSE_MINUTE 0
-```
-
-**Sistema de Feedback Visual**
-- Botão de requerimento desabilitado automaticamente quando:
-  - Sistema fechado (após 18:00): Exibe "Sistema fechado"
-  - Sem saldo disponível: Exibe "Sem saldo disponível"
-- Mensagens de erro contextualizadas para cada tipo de validação
-- Indicadores visuais de sucesso/erro em operações
-
 ---
 
 ## Configurações
 
 ### Ajuste de Horário do Sistema
 
-Para modificar o horário limite de abertura de requerimentos, edite `main.c`:
+O horário limite de abertura de requerimentos, se encontra em `main.c`:
 
 ```c
-// Horário de fechamento do sistema (formato 24h)
-#define SYSTEM_CLOSE_HOUR 18    // Hora (0-23)
-#define SYSTEM_CLOSE_MINUTE 0   // Minuto (0-59)
+#define SYSTEM_CLOSE_HOUR 18
+#define SYSTEM_CLOSE_MINUTE 0
 ```
 
 ### Configuração de Conexão MySQL
@@ -508,11 +480,3 @@ Adicione `-lmysqlclient` nas opções de linkagem do compilador.
 **Desenvolvimento GTK**
 - [Criando Aplicações GTK no Code::Blocks](https://www.treinaweb.com.br/blog/criando-uma-aplicacao-c-com-gtk-no-codeblocks/)
 - [Glade Interface Designer](https://glade.gnome.org/)
-
----
-
-<div align="center">
-
-**Desenvolvido com dedicação**
-
-</div>
