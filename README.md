@@ -24,7 +24,7 @@
 
 ## Sobre o projeto
 
-***Overtime Tracker** é um Sistema de Gerenciamento de Banco de Horas de plataforma Desktop feito para atender a um Projeto Integrador Universitário.
+**Overtime Tracker** é um Sistema de Gerenciamento de Banco de Horas de plataforma Desktop feito para atender a um Projeto Integrador Universitário.
 
 ### Visão Geral
 
