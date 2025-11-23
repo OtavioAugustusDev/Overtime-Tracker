@@ -502,47 +502,6 @@ Adicione `-lmysqlclient` nas opções de linkagem do compilador.
 
 ---
 
-## Contribuindo
-
-Contribuições são bem-vindas! Para contribuir:
-
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/MinhaFeature`)
-3. Commit suas mudanças (`git commit -m 'Adiciona MinhaFeature'`)
-4. Push para a branch (`git push origin feature/MinhaFeature`)
-5. Abra um Pull Request
-
-### Padrões de Código
-
-- Siga o padrão C99
-- Mantenha funções pequenas e focadas
-- Documente código complexo
-- Execute testes antes de commitar
-
----
-
-## Roadmap
-
-### Versão 1.1 (Planejado)
-- Exportação de relatórios em PDF
-- Gráficos de utilização de horas
-- Notificações por email
-- Suporte a múltiplos idiomas
-
-### Versão 2.0 (Futuro)
-- API REST para integração
-- Aplicativo mobile
-- Dashboard analítico avançado
-- Sistema de aprovação em múltiplas etapas
-
----
-
-## Licença
-
-Este projeto está licenciado sob a Licença MIT - veja o arquivo LICENSE para detalhes.
-
----
-
 ## Referências
 
 ### Documentação Oficial
@@ -576,13 +535,5 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo LICENSE para d
 ---
 
 <div align="center">
-
-**Desenvolvido com dedicação para Projeto Integrador**
-
-*Universidade Vila Velha*
-
-[Reportar Bug](https://github.com/seu-usuario/overtime-tracker/issues) •
-[Solicitar Feature](https://github.com/seu-usuario/overtime-tracker/issues) •
-[Documentação Completa](https://github.com/seu-usuario/overtime-tracker/wiki)
-
+**Desenvolvido com dedicação**
 </div>
