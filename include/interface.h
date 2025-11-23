@@ -1,28 +1,16 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
-#include <gtk/gtk.h>
+// Janela de alerta
+void show_error_dialog(GtkWindow *parent, const char *message);
 
-// Enumeração para tipos de botão
-typedef enum {
-    NORMAL,
-    PILL,
-    SUGGESTED,
-    DESTRUCTIVE
-} ButtonType;
+// Janela informativa
+void show_info_dialog(GtkWindow *parent, const char *message);
 
-// Funções de criação de widgets
-GtkWidget* create_window(GtkApplication* app, const char* title, int width, int height);
-GtkWidget* create_input_text(const char* title, const char* placeholder, int secret);
-GtkWidget* create_button(
-    const char* label,
-    ButtonType type,
-    GCallback callback,
-    gpointer user_data,
-    const char* data_key,
-    gpointer data_value,
-    int size[2],
-    int margin[4]
-);
+// Janela de confirmação - Sim / Não
+bool show_confirm_dialog(GtkWindow *parent, const char *message);
+
+// Limpa o container
+void clear_container(GtkWidget *container);
 
 #endif
