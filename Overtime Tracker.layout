@@ -2,21 +2,6 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Release" />
-	<File name="src\interface.c" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="440" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="include\database.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="837" topLine="7" />
-		</Cursor>
-	</File>
-	<File name="include\interface.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="636" topLine="4" />
-		</Cursor>
-	</File>
 	<File name="src\database.c" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="8278" topLine="258" />
@@ -24,7 +9,55 @@
 	</File>
 	<File name="src\main.c" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="7471" topLine="149" />
+			<Cursor1 position="194" topLine="0" />
+		</Cursor>
+		<Folding>
+			<Collapse line="52" />
+			<Collapse line="86" />
+			<Collapse line="128" />
+			<Collapse line="141" />
+			<Collapse line="154" />
+			<Collapse line="167" />
+			<Collapse line="216" />
+			<Collapse line="229" />
+			<Collapse line="278" />
+			<Collapse line="306" />
+			<Collapse line="312" />
+			<Collapse line="366" />
+			<Collapse line="434" />
+			<Collapse line="443" />
+			<Collapse line="450" />
+			<Collapse line="513" />
+			<Collapse line="552" />
+			<Collapse line="570" />
+			<Collapse line="580" />
+			<Collapse line="583" />
+			<Collapse line="586" />
+			<Collapse line="589" />
+			<Collapse line="592" />
+			<Collapse line="595" />
+			<Collapse line="598" />
+			<Collapse line="601" />
+			<Collapse line="604" />
+			<Collapse line="607" />
+			<Collapse line="610" />
+			<Collapse line="613" />
+			<Collapse line="616" />
+		</Folding>
+	</File>
+	<File name="include\interface.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="351" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="include\database.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="273" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\interface.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1115" topLine="12" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

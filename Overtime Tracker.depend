@@ -1,13 +1,14 @@
 # depslib dependency file v1.0
-1763854400 source:c:\users\otavioaugustus\desktop\overtime-tracker\src\main.c
+1763858033 source:c:\users\otavioaugustus\desktop\overtime-tracker\src\main.c
 	<gtk/gtk.h>
 	<mysql.h>
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
 	<locale.h>
-	<time.h>
+	<stdbool.h>
 	"database.h"
+	"interface.h"
 
 1761611270 c:\msys64\mingw64\include\stdio.h
 	<corecrt_stdio_config.h>
@@ -4502,8 +4503,7 @@
 	<time.h>
 	<gtk/gtk.h>
 
-1763511916 c:\users\otavioaugustus\desktop\overtime-tracker\include\interface.h
-	<gtk/gtk.h>
+1763856185 c:\users\otavioaugustus\desktop\overtime-tracker\include\interface.h
 
 1761611270 c:\msys64\mingw64\include\locale.h
 	<crtdefs.h>

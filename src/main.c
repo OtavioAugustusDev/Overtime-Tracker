@@ -22,7 +22,7 @@ typedef struct {
 
 AppData app_data;
 
-#define SYSTEM_CLOSE_HOUR 19
+#define SYSTEM_CLOSE_HOUR 18
 #define SYSTEM_CLOSE_MINUTE 0
 
 bool is_system_closed() {
@@ -280,11 +280,17 @@ void on_request_button_clicked(GtkButton *button, gpointer user_data) {
     GtkStack *stack = GTK_STACK(gtk_builder_get_object(app_data.builder, "main_stack"));
     gtk_stack_set_visible_child_name(stack, "request");
 
-    // Valor máixmo do slider nunca excederá o saldo do usuário
     GtkScale *slider = GTK_SCALE(gtk_builder_get_object(app_data.builder, "hours_slider"));
     GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(slider));
     gtk_adjustment_set_upper(adjustment, app_data.current_overtime);
     gtk_adjustment_set_value(adjustment, 0);
+
+    GtkCalendar *calendar = GTK_CALENDAR(gtk_builder_get_object(app_data.builder, "calendar"));
+
+    time_t now = time(NULL);
+    struct tm *today = localtime(&now);
+    gtk_calendar_select_day(calendar, today->tm_mday + 1);
+    gtk_calendar_select_month(calendar, today->tm_mon, today->tm_year + 1900);
 
     // Limpa formulário
     GtkLabel *output = GTK_LABEL(gtk_builder_get_object(app_data.builder, "request_output_label"));
@@ -335,8 +341,10 @@ void on_manage_users_clicked(GtkButton *button, gpointer user_data) {
         gtk_label_set_xalign(GTK_LABEL(label), 0);
         gtk_widget_set_hexpand(label, TRUE);
 
-        GtkWidget *edit_btn = gtk_button_new_with_label("✏️ Editar");
-        GtkWidget *delete_btn = gtk_button_new_with_label("🗑️ Deletar");
+        GtkWidget *edit_btn = gtk_button_new_with_label("Editar");
+        GtkWidget *delete_btn = gtk_button_new_with_label("Deletar");
+
+        gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(delete_btn)), "destructive-action");
 
         g_object_set_data(G_OBJECT(edit_btn), "user_id", GINT_TO_POINTER(user_id));
         g_object_set_data(G_OBJECT(delete_btn), "user_id", GINT_TO_POINTER(user_id));
@@ -448,7 +456,27 @@ void on_submit_request_clicked(GtkButton *button, gpointer user_data) {
 
     guint year, month, day;
     gtk_calendar_get_date(calendar, &year, &month, &day);
-    month++; // No GTK, o mês começa em zero
+    month++; // Meses no GTK começam em zero
+
+    time_t now = time(NULL);
+    struct tm *current_time = localtime(&now);
+    struct tm selected_date = {0};
+    selected_date.tm_year = year - 1900;
+    selected_date.tm_mon = month - 1;
+    selected_date.tm_mday = day;
+
+    time_t selected_timestamp = mktime(&selected_date);
+    time_t today_timestamp = mktime(current_time);
+
+    current_time->tm_hour = 0;
+    current_time->tm_min = 0;
+    current_time->tm_sec = 0;
+    today_timestamp = mktime(current_time);
+
+    if (selected_timestamp <= today_timestamp) {
+        gtk_label_set_markup(output, "<span foreground='red'>Selecione uma data futura (a partir de amanhã).</span>");
+        return;
+    }
 
     double hours = gtk_range_get_value(GTK_RANGE(slider));
 
@@ -523,7 +551,19 @@ void on_create_user_clicked(GtkButton *button, gpointer user_data) {
 }
 
 void on_user_form_changed(GtkWidget *widget, gpointer user_data) {
-    // Placeholder para validação de formulário se necessário
+    GtkEntry *username = GTK_ENTRY(gtk_builder_get_object(app_data.builder, "entry_username"));
+    GtkEntry *password = GTK_ENTRY(gtk_builder_get_object(app_data.builder, "entry_password"));
+    GtkComboBoxText *role = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(app_data.builder, "entry_role"));
+    GtkButton *save_button = GTK_BUTTON(gtk_builder_get_object(app_data.builder, "save_button"));
+
+    const char *user = gtk_entry_get_text(username);
+    const char *pass = gtk_entry_get_text(password);
+    const char *role_text = gtk_combo_box_text_get_active_text(role);
+
+    gboolean is_valid = (strlen(user) > 0 && strlen(pass) > 0 && role_text != NULL);
+    gtk_widget_set_sensitive(GTK_WIDGET(save_button), is_valid);
+
+    if (role_text) g_free((char*)role_text);
 }
 
 
