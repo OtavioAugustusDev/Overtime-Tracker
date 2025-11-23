@@ -23,33 +23,33 @@
 
 ---
 
-## Visão Geral
+## Sobre o projeto
 
-O ***Overtime Tracker** é um Sistema de Gerenciamento de Banco de Horas** desktop, construído com tecnologias consolidadas e focado em segurança, o sistema oferece uma interface intuitiva tanto para colaboradores quanto para gestores.
+***Overtime Tracker** é um Sistema de Gerenciamento de Banco de Horas de plataforma Desktop feito para atender a um Projeto Integrador Universitário.
 
-### Características Principais
+### CVisão Geral
 
-#### Para Colaboradores
-- **Dashboard Interativo**: Visualização em tempo real do saldo de horas disponíveis
-- **Gestão de Requerimentos**: Interface simplificada para solicitar folgas compensatórias
-- **Validação Inteligente**: Sistema automatizado que previne solicitações inválidas
-- **Histórico Completo**: Acompanhamento detalhado de todas as solicitações realizadas
-- **Restrições de Horário**: Controle automático baseado no horário de funcionamento da empresa
+#### Painel para Colaboradores
+- **Dashboard interativo** com sisualização em tempo real do saldo de horas disponíveis
+- **Gestão de requerimentos** fluído com um formulário simples para solicitação de folgas compensatórias
+- **Validação inteligente**  que previne solicitaçõe inválidas
+- **Histórico completo** e detalhado de todos os formulários enviados
+- **Restrição de horário** que impede envio de novas solicitações fora de horário comercial
 
-#### Para Gestores
-- **Painel Administrativo**: Visão centralizada de todas as solicitações pendentes
-- **Gestão de Usuários**: CRUD completo para gerenciamento de colaboradores
-- **Aprovação de Requerimentos**: Interface simplificada para análise e decisão de solicitações
-- **Atualização Automática**: Sistema atualiza saldos automaticamente após aprovações
-- **Controles de Acesso**: Hierarquia de permissões bem definida
+#### Painel para Gestores
+- **Painel Administrativo** com visão centralizada de todas as solicitações pendentes
+- **Gestão de Usuários** com CRUD completo para gerenciamento de colaboradores
+- **Aprovação de requerimentos** de forma tranparente e simplificada
+- **Atualizações periódicas** dos dados do sistema
+- **Controles de Acesso** com níveis de permissão bem-definidos
 
-### Tecnologias Utilizadas
+### Tecnologias Empregadas
 
 - **Linguagem**: C (C99)
 - **Interface Gráfica**: GTK 3.24
 - **Banco de Dados**: MySQL 8.0
 - **Editor de Interface**: Glade
-- **IDE Recomendada**: Code::Blocks 25.03
+- **IDE**: Code::Blocks 25.03
 - **Compilador**: GCC via MSYS2
 
 ---
@@ -58,16 +58,16 @@ O ***Overtime Tracker** é um Sistema de Gerenciamento de Banco de Horas** deskt
 
 ### Pré-requisitos
 
-Antes de iniciar, certifique-se de ter os seguintes componentes instalados:
+Certifique-se de ter os seguintes componentes instalados:
 
 #### 1. Compilador C (GCC)
 
-Siga o guia completo de instalação:
+Guia de instalação:
 - [Configuração do Ambiente C](https://syntaxpathways.com/set-up-c-development-environment/)
 
 #### 2. IDE Code::Blocks 25.03
 
-Download da versão recomendada:
+Versão recomendada:
 - [Code::Blocks 25.03 Setup](https://sourceforge.net/projects/codeblocks/files/Binaries/25.03/Windows/codeblocks-25.03-setup.exe/download)
 
 #### 3. MySQL Server 8.0
@@ -75,7 +75,7 @@ Download da versão recomendada:
 Download e instalação:
 - [MySQL Community Server](https://dev.mysql.com/downloads/windows/installer/8.0.html)
 
-> **Importante**: Instale todos os programas nos diretórios padrão sugeridos pelos instaladores. Alterações nos caminhos de instalação exigirão configuração manual adicional na IDE.
+> **Importante**: Instale todos os programas nos diretórios padrão sugeridos pelos instaladores. Alterações nos caminhos de instalação exigirão configuração manual na IDE.
 
 ### Configuração do Ambiente
 
@@ -108,19 +108,15 @@ pkg-config --cflags gtk+-3.0
 pkg-config --libs gtk+-3.0
 ```
 
-Se os comandos retornarem as flags de compilação e linkagem, a instalação foi bem-sucedida.
+Se os comandos retornarem flags de compilação, a instalação foi bem-sucedida.
 
 > **Solução de Problemas**: Caso encontre erros, repita o processo de instalação das dependências e reinicie o terminal.
 
 ### Configuração do Banco de Dados
 
-#### 1. Criação do Schema
+#### 1. Criação do Esquema
 
-Abra o **MySQL Command Line Client** e autentique-se com as credenciais do usuário `root`:
-
-```bash
-mysql -u root -p
-```
+Abra o **MySQL Command Line Client** e autentique-se com as credenciais do usuário `root`
 
 #### 2. Execução do Script de Inicialização
 
@@ -139,7 +135,7 @@ O script criará automaticamente:
 
 #### 3. Configuração das Credenciais
 
-As configurações de conexão estão definidas no arquivo `database.h`:
+As configurações de conexão do aplicativo estão definidas no cabeçalho `database.h`:
 
 ```c
 #define DATABASE_ADDRESS "localhost"
@@ -149,41 +145,28 @@ As configurações de conexão estão definidas no arquivo `database.h`:
 #define DATABASE_PORT 3306
 ```
 
-Ajuste essas constantes conforme seu ambiente de desenvolvimento.
-
 ### Compilação do Projeto
 
-#### Usando Code::Blocks
-
 1. Abra o arquivo `Overtime Tracker.cbp` no Code::Blocks
-2. Configure o compilador para GCC (via MSYS2)
 3. Pressione `F9` para compilar e executar
-
-#### Compilação via Linha de Comando
-
-```bash
-gcc -o overtime-tracker src/main.c src/database.c src/interface.c \
-    `pkg-config --cflags --libs gtk+-3.0` -lmysqlclient
-```
 
 ---
 
 ## Arquitetura do Projeto
 
-### Estrutura de Diretórios
+### Árvore de Diretórios
 
 ```
 overtime-tracker/
 ├── src/
-│   ├── main.c              # Ponto de entrada e orquestração da aplicação
-│   ├── database.c          # Camada de acesso a dados (DAL)
-│   ├── database.h          # Interface pública da DAL
-│   └── interface.c         # Componentes customizados de UI
+│   ├── main.c              # Orquestração da aplicação
+│   ├── database.c          # Camada de acesso ao banco de dados
+│   └── interface.c         # Componentes de UI
+├── include/                # Cabeçalhos
 ├── glade/
-│   └── app.glade           # Definição declarativa da interface GTK
+│   └── app.glade           # Arquivo de interface GTK
 ├── init.sql                # Script de inicialização do banco de dados
 ├── Overtime Tracker.cbp    # Projeto do Code::Blocks
-└── README.md               # Documentação do projeto
 ```
 
 ### Componentes Principais
