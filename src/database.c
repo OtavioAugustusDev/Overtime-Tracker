@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <mysql.h>
-
 #include "database.h"
 
 MYSQL* connect_to_database()

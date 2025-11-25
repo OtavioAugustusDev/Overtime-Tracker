@@ -1,6 +1,9 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
+#include <time.h>
+#include <gtk/gtk.h>
+
 // Janela de alerta
 void show_error_dialog(GtkWindow *parent, const char *message);
 

@@ -1,5 +1,4 @@
-#include <time.h>
-#include <gtk/gtk.h>
+#include "interface.h"
 
 void show_error_dialog(GtkWindow *parent, const char *message) {
     GtkWidget *dialog = gtk_message_dialog_new(

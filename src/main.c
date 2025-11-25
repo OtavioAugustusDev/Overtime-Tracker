@@ -1,8 +1,3 @@
-#include <gtk/gtk.h>
-#include <mysql.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <locale.h>
 #include <stdbool.h>
 
@@ -105,7 +100,7 @@ void update_dashboard() {
         app_data.current_overtime = atof(user_data[2]);
         app_data.current_workhours = atof(user_data[3]);
 
-        char greeting[256];
+        char greeting[512];
         snprintf(greeting, sizeof(greeting), "Olá, %s! 👋", app_data.current_username);
 
         GtkLabel *greeting_label = GTK_LABEL(gtk_builder_get_object(app_data.builder, "greeting_label"));
