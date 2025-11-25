@@ -8,11 +8,10 @@
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-orange.svg)
 ![C](https://img.shields.io/badge/C-99-lightgrey.svg)
 
-*Uma solução corporativa completa para gestão de horas extras e folgas compensatórias, desenvolvida em C com interface gráfica GTK e banco de dados MySQL*
+*Solução completa para gestão de horas extras e folgas compensatórias, desenvolvida em C com interface gráfica GTK e banco de dados MySQL*
 
 <img width="1365" alt="Interface do Sistema" src="https://github.com/user-attachments/assets/631b17be-2e11-442d-adfa-e6d71b8112d8" />
 
-[Características](#características) •
 [Instalação](#instalação) •
 [Uso](#manual-de-uso) •
 [Arquitetura](#arquitetura-do-projeto) •
@@ -23,33 +22,33 @@
 
 ---
 
-## Visão Geral
+## Sobre o projeto
 
-O **Sistema de Gerenciamento de Banco de Horas** é uma aplicação desktop robusta desenvolvida para empresas que necessitam controlar horas extras e folgas compensatórias de seus colaboradores. Construído com tecnologias consolidadas e focado em segurança, o sistema oferece uma interface intuitiva tanto para colaboradores quanto para gestores.
+**Overtime Tracker** é um Sistema de Gerenciamento de Banco de Horas de plataforma Desktop feito para atender a um Projeto Integrador Universitário.
 
-### Características Principais
+### Visão Geral
 
-#### Para Colaboradores
-- **Dashboard Interativo**: Visualização em tempo real do saldo de horas disponíveis
-- **Gestão de Requerimentos**: Interface simplificada para solicitar folgas compensatórias
-- **Validação Inteligente**: Sistema automatizado que previne solicitações inválidas
-- **Histórico Completo**: Acompanhamento detalhado de todas as solicitações realizadas
-- **Restrições de Horário**: Controle automático baseado no horário de funcionamento da empresa
+#### Painel para Colaboradores
+- **Dashboard interativo** com sisualização em tempo real do saldo de horas disponíveis
+- **Gestão de requerimentos** fluído com um formulário simples para solicitação de folgas compensatórias
+- **Validação inteligente**  que previne solicitaçõe inválidas
+- **Histórico completo** e detalhado de todos os formulários enviados
+- **Restrição de horário** que impede envio de novas solicitações fora de horário comercial
 
-#### Para Gestores
-- **Painel Administrativo**: Visão centralizada de todas as solicitações pendentes
-- **Gestão de Usuários**: CRUD completo para gerenciamento de colaboradores
-- **Aprovação de Requerimentos**: Interface simplificada para análise e decisão de solicitações
-- **Atualização Automática**: Sistema atualiza saldos automaticamente após aprovações
-- **Controles de Acesso**: Hierarquia de permissões bem definida
+#### Painel para Gestores
+- **Painel Administrativo** com visão centralizada de todas as solicitações pendentes
+- **Gestão de Usuários** com CRUD completo para gerenciamento de colaboradores
+- **Aprovação de requerimentos** de forma tranparente e simplificada
+- **Atualizações periódicas** dos dados do sistema
+- **Controles de Acesso** com níveis de permissão bem-definidos
 
-### Tecnologias Utilizadas
+### Tecnologias Empregadas
 
 - **Linguagem**: C (C99)
 - **Interface Gráfica**: GTK 3.24
 - **Banco de Dados**: MySQL 8.0
 - **Editor de Interface**: Glade
-- **IDE Recomendada**: Code::Blocks 25.03
+- **IDE**: Code::Blocks 25.03
 - **Compilador**: GCC via MSYS2
 
 ---
@@ -58,16 +57,16 @@ O **Sistema de Gerenciamento de Banco de Horas** é uma aplicação desktop robu
 
 ### Pré-requisitos
 
-Antes de iniciar, certifique-se de ter os seguintes componentes instalados:
+Certifique-se de ter os seguintes componentes instalados:
 
 #### 1. Compilador C (GCC)
 
-Siga o guia completo de instalação:
+Guia de instalação:
 - [Configuração do Ambiente C](https://syntaxpathways.com/set-up-c-development-environment/)
 
 #### 2. IDE Code::Blocks 25.03
 
-Download da versão recomendada:
+Versão recomendada:
 - [Code::Blocks 25.03 Setup](https://sourceforge.net/projects/codeblocks/files/Binaries/25.03/Windows/codeblocks-25.03-setup.exe/download)
 
 #### 3. MySQL Server 8.0
@@ -75,7 +74,7 @@ Download da versão recomendada:
 Download e instalação:
 - [MySQL Community Server](https://dev.mysql.com/downloads/windows/installer/8.0.html)
 
-> **Importante**: Instale todos os programas nos diretórios padrão sugeridos pelos instaladores. Alterações nos caminhos de instalação exigirão configuração manual adicional na IDE.
+> **Importante**: Instale todos os programas nos diretórios padrão sugeridos pelos instaladores. Alterações nos caminhos de instalação exigirão configuração manual na IDE.
 
 ### Configuração do Ambiente
 
@@ -108,19 +107,15 @@ pkg-config --cflags gtk+-3.0
 pkg-config --libs gtk+-3.0
 ```
 
-Se os comandos retornarem as flags de compilação e linkagem, a instalação foi bem-sucedida.
+Se os comandos retornarem flags de compilação, a instalação foi bem-sucedida.
 
 > **Solução de Problemas**: Caso encontre erros, repita o processo de instalação das dependências e reinicie o terminal.
 
 ### Configuração do Banco de Dados
 
-#### 1. Criação do Schema
+#### 1. Criação do Esquema
 
-Abra o **MySQL Command Line Client** e autentique-se com as credenciais do usuário `root`:
-
-```bash
-mysql -u root -p
-```
+Abra o **MySQL Command Line Client** e autentique-se com as credenciais do usuário `root`
 
 #### 2. Execução do Script de Inicialização
 
@@ -137,53 +132,29 @@ O script criará automaticamente:
 - Índices otimizados para performance
 - Dois usuários padrão para testes
 
-#### 3. Configuração das Credenciais
-
-As configurações de conexão estão definidas no arquivo `database.h`:
-
-```c
-#define DATABASE_ADDRESS "localhost"
-#define DATABASE_USER "root"
-#define DATABASE_PASSWORD "123"
-#define DATABASE_NAME "pineapple"
-#define DATABASE_PORT 3306
-```
-
-Ajuste essas constantes conforme seu ambiente de desenvolvimento.
-
 ### Compilação do Projeto
 
-#### Usando Code::Blocks
-
 1. Abra o arquivo `Overtime Tracker.cbp` no Code::Blocks
-2. Configure o compilador para GCC (via MSYS2)
 3. Pressione `F9` para compilar e executar
-
-#### Compilação via Linha de Comando
-
-```bash
-gcc -o overtime-tracker src/main.c src/database.c src/interface.c \
-    `pkg-config --cflags --libs gtk+-3.0` -lmysqlclient
-```
 
 ---
 
 ## Arquitetura do Projeto
 
-### Estrutura de Diretórios
+### Árvore de Diretórios
 
 ```
 overtime-tracker/
 ├── src/
-│   ├── main.c              # Ponto de entrada e orquestração da aplicação
-│   ├── database.c          # Camada de acesso a dados (DAL)
-│   ├── database.h          # Interface pública da DAL
-│   └── interface.c         # Componentes customizados de UI
+│   ├── main.c              # Orquestração da aplicação
+│   ├── database.c          # Camada de acesso ao banco de dados
+│   └── interface.c         # Componentes de UI
+├── include/                # Cabeçalhos
 ├── glade/
-│   └── app.glade           # Definição declarativa da interface GTK
-├── init.sql                # Script de inicialização do banco de dados
+│   └── app.glade           # Arquivo de interface GTK
+├── sql/
+│   └── init.sql            # Script de inicialização do banco de dados
 ├── Overtime Tracker.cbp    # Projeto do Code::Blocks
-└── README.md               # Documentação do projeto
 ```
 
 ### Componentes Principais
@@ -217,7 +188,7 @@ Interface declarativa criada com Glade:
 - Separação clara entre apresentação e lógica
 - Facilita manutenção e internacionalização
 
-### Fluxo de Dados
+### Fluxograma
 
 ```
 [Interface GTK] ←→ [main.c] ←→ [database.c] ←→ [MySQL Server]
@@ -239,7 +210,7 @@ Após executar o script `init.sql`, o sistema disponibiliza duas contas de teste
 | otavio  | 1234  | GESTOR          | 0.00h |
 | breno   | 1234  | COLABORADOR     | 25.50h |
 
-### Funcionalidades do Colaborador
+### Colaborador
 
 #### Dashboard Principal
 
@@ -280,7 +251,8 @@ O sistema verifica automaticamente:
 - Disponibilidade de saldo suficiente
 - Horário de funcionamento do sistema
 - Completude dos dados obrigatórios
-- Validade da data selecionada
+- Validade da data selecionada (apenas datas futuras são permitidas)
+- Prevenção de seleção de datas passadas ou do dia atual
 
 **Restrições de Horário**
 O botão de novo requerimento é automaticamente desabilitado quando:
@@ -296,7 +268,7 @@ O botão de novo requerimento é automaticamente desabilitado quando:
 | Fora de horário | "Sistema fechado" | Desabilitado |
 | Sem saldo | "Sem saldo disponível" | Desabilitado |
 
-### Funcionalidades do Gestor
+### Gestor
 
 #### Dashboard Administrativo
 
@@ -409,31 +381,25 @@ mysql_real_escape_string(socket, escaped_username, username, strlen(username));
 - Validação de credenciais no servidor
 - Sessões gerenciadas em memória
 
-### Validações de Negócio
+### Validações de dadps
 
 **Integridade de Dados**
 - Verificação de saldo antes de aprovações
 - Prevenção de valores negativos
 - Garantia de consistência transacional
-
-**Restrições Temporais**
-```c
-#define SYSTEM_CLOSE_HOUR 18
-#define SYSTEM_CLOSE_MINUTE 0
-```
-
+- Bloqueio de datas passadas ou do dia atual em requerimentos
+- Limite de horas no slider baseado no saldo disponível do colaborador
 ---
 
-## Configurações Avançadas
+## Configurações
 
 ### Ajuste de Horário do Sistema
 
-Para modificar o horário limite de abertura de requerimentos, edite `main.c`:
+O horário limite de abertura de requerimentos, se encontra em `main.c`:
 
 ```c
-// Horário de fechamento do sistema (formato 24h)
-#define SYSTEM_CLOSE_HOUR 18    // Hora (0-23)
-#define SYSTEM_CLOSE_MINUTE 0   // Minuto (0-59)
+#define SYSTEM_CLOSE_HOUR 18
+#define SYSTEM_CLOSE_MINUTE 0
 ```
 
 ### Configuração de Conexão MySQL
@@ -448,23 +414,7 @@ Ajuste as credenciais em `database.h` conforme seu ambiente:
 #define DATABASE_PORT 3306            // Porta de conexão
 ```
 
-### Otimização de Performance
-
-O banco de dados inclui índices otimizados:
-
-```sql
-CREATE INDEX idx_user_requests ON time_off_requests(user_id);
-CREATE INDEX idx_status ON time_off_requests(status);
-```
-
-Para ambientes de alta carga, considere:
-- Ajuste de pool de conexões
-- Implementação de cache
-- Otimização de queries complexas
-
----
-
-## Solução de Problemas
+## Solução de problemas
 
 ### Erro de Conexão MySQL
 
@@ -531,9 +481,3 @@ Adicione `-lmysqlclient` nas opções de linkagem do compilador.
 **Desenvolvimento GTK**
 - [Criando Aplicações GTK no Code::Blocks](https://www.treinaweb.com.br/blog/criando-uma-aplicacao-c-com-gtk-no-codeblocks/)
 - [Glade Interface Designer](https://glade.gnome.org/)
-
----
-
-<div align="center">
-**Desenvolvido com dedicação**
-</div>
