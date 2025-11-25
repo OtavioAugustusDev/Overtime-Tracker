@@ -152,7 +152,8 @@ overtime-tracker/
 ├── include/                # Cabeçalhos
 ├── glade/
 │   └── app.glade           # Arquivo de interface GTK
-├── init.sql                # Script de inicialização do banco de dados
+├── sql/
+│   └── init.sql            # Script de inicialização do banco de dados
 ├── Overtime Tracker.cbp    # Projeto do Code::Blocks
 ```
 
