@@ -1,7 +1,6 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
-#include <time.h>
 #include <gtk/gtk.h>
 
 // Janela de alerta

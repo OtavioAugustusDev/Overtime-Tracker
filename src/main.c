@@ -1,5 +1,6 @@
 #include <locale.h>
 #include <stdbool.h>
+#include <time.h>
 
 #include "database.h"
 #include "interface.h"
@@ -17,7 +18,7 @@ typedef struct {
 
 AppData app_data;
 
-#define SYSTEM_CLOSE_HOUR 99
+#define SYSTEM_CLOSE_HOUR 19
 #define SYSTEM_CLOSE_MINUTE 0
 
 bool is_system_closed() {
@@ -81,14 +82,11 @@ void load_user_requests() {
 
 void update_request_button_state() {
     GtkButton *request_button = GTK_BUTTON(gtk_builder_get_object(app_data.builder, "request_button"));
+    gtk_widget_set_sensitive(GTK_WIDGET(request_button), FALSE);
 
-    if (is_system_closed()) {
-        gtk_button_set_label(request_button, "🔒 Sistema fechado");
-        gtk_widget_set_sensitive(GTK_WIDGET(request_button), FALSE);
-    } else if (app_data.current_overtime <= 0) {
-        gtk_button_set_label(request_button, "⚠️ Sem saldo disponível");
-        gtk_widget_set_sensitive(GTK_WIDGET(request_button), FALSE);
-    } else {
+    if (is_system_closed()) gtk_button_set_label(request_button, "🔒 Sistema fechado");
+    else if (!app_data.current_overtime) gtk_button_set_label(request_button, "⚠️ Sem saldo disponível");
+    else {
         gtk_button_set_label(request_button, "📝 Novo requerimento");
         gtk_widget_set_sensitive(GTK_WIDGET(request_button), TRUE);
     }
@@ -315,7 +313,7 @@ void on_manage_users_clicked(GtkButton *button, gpointer user_data) {
     clear_container(GTK_WIDGET(users_box));
 
     MYSQL_RES *result = get_users_list(app_data.db);
-    if (!result) return;
+    if (result == NULL) return;
 
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(result))) {
@@ -363,7 +361,7 @@ void on_manage_requests_clicked(GtkButton *button, gpointer user_data) {
     clear_container(GTK_WIDGET(requests_box));
 
     MYSQL_RES *result = get_requests_list(app_data.db);
-    if (!result) return;
+    if (result == NULL) return;
 
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(result))) {
