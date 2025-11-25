@@ -42,15 +42,6 @@
 - **Atualizações periódicas** dos dados do sistema
 - **Controles de Acesso** com níveis de permissão bem-definidos
 
-### Tecnologias Empregadas
-
-- **Linguagem**: C (C99)
-- **Interface Gráfica**: GTK 3.24
-- **Banco de Dados**: MySQL 8.0
-- **Editor de Interface**: Glade
-- **IDE**: Code::Blocks 25.03
-- **Compilador**: GCC via MSYS2
-
 ---
 
 ## Instalação
@@ -59,26 +50,24 @@
 
 Certifique-se de ter os seguintes componentes instalados:
 
-#### 1. Compilador C (GCC)
+#### Compilador C
 
 Guia de instalação:
 - [Configuração do Ambiente C](https://syntaxpathways.com/set-up-c-development-environment/)
 
-#### 2. IDE Code::Blocks 25.03
+#### IDE Code::Blocks
 
 Versão recomendada:
 - [Code::Blocks 25.03 Setup](https://sourceforge.net/projects/codeblocks/files/Binaries/25.03/Windows/codeblocks-25.03-setup.exe/download)
 
-#### 3. MySQL Server 8.0
+#### MySQL Server
 
 Download e instalação:
 - [MySQL Community Server](https://dev.mysql.com/downloads/windows/installer/8.0.html)
 
-> **Importante**: Instale todos os programas nos diretórios padrão sugeridos pelos instaladores. Alterações nos caminhos de instalação exigirão configuração manual na IDE.
+> **Observação**: Instale todos os programas nos diretórios padrão sugeridos pelos instaladores. Alterações nos caminhos de instalação exigirão configuração manual na IDE.
 
-### Configuração do Ambiente
-
-#### Instalação das Dependências GTK
+### Dependências da bilbioteca GTK
 
 Abra o terminal **MSYS2 MSYS** e execute os seguintes comandos:
 
@@ -98,8 +87,6 @@ pacman -S mingw-w64-x86_64-glade
 pacman -Syu
 ```
 
-#### Verificação da Instalação
-
 Após a instalação, abra o terminal **MSYS2 MINGW64** e verifique:
 
 ```bash
@@ -107,288 +94,128 @@ pkg-config --cflags gtk+-3.0
 pkg-config --libs gtk+-3.0
 ```
 
-Se os comandos retornarem flags de compilação, a instalação foi bem-sucedida.
+Se os comandos retornarem flags, a instalação foi bem-sucedida.
 
-> **Solução de Problemas**: Caso encontre erros, repita o processo de instalação das dependências e reinicie o terminal.
+> **Observação**: Caso encontre erros, repita o processo de instalação das dependências e reinicie o terminal.
 
-### Configuração do Banco de Dados
+### Preparação do Banco de Dados
 
-#### 1. Criação do Esquema
-
-Abra o **MySQL Command Line Client** e autentique-se com as credenciais do usuário `root`
-
-#### 2. Execução do Script de Inicialização
-
-Execute o arquivo `init.sql` fornecido no projeto:
+Autentique-se como usuário `root` no **MySQL Command Line Client** e execute o arquivo `init.sql` fornecido no projeto:
 
 ```sql
 source C:\Users\SeuUsuario\caminho\para\o\projeto\init.sql
 ```
 
 O script criará automaticamente:
-- Database `pineapple`
-- Tabela `users` com estrutura completa
-- Tabela `time_off_requests` com relacionamentos
-- Índices otimizados para performance
-- Dois usuários padrão para testes
+- Banco de dados `pineapple`
+- Tabelas `users` e`time_off_requests`
+- Usuário padrão `admin` com senha `password`
 
-### Compilação do Projeto
+### Compilação e Execução
 
-1. Abra o arquivo `Overtime Tracker.cbp` no Code::Blocks
-3. Pressione `F9` para compilar e executar
+1. Abra o arquivo `Overtime Tracker.cbp` com a IDE Code::Blocks;
+3. Pressione `F9` para compilar e executar.
 
 ---
 
 ## Arquitetura do Projeto
 
-### Árvore de Diretórios
+### Componentes
 
-```
-overtime-tracker/
-├── src/
-│   ├── main.c              # Orquestração da aplicação
-│   ├── database.c          # Camada de acesso ao banco de dados
-│   └── interface.c         # Componentes de UI
-├── include/                # Cabeçalhos
-├── glade/
-│   └── app.glade           # Arquivo de interface GTK
-├── sql/
-│   └── init.sql            # Script de inicialização do banco de dados
-├── Overtime Tracker.cbp    # Projeto do Code::Blocks
-```
-
-### Componentes Principais
-
-#### main.c
-Responsável pela lógica de negócio e integração entre interface e banco de dados:
+#### `main.c`
+Lógica de negócio e integração entre interface e banco de dados:
 - Gerenciamento do ciclo de vida da aplicação
 - Implementação de callbacks e handlers de eventos
 - Controle de estado da aplicação
 - Validação de regras de negócio
 - Gerenciamento de sessões de usuário
 
-#### database.c
+#### `database.c`
 Camada de abstração para operações de banco de dados:
-- Conexão e gerenciamento de pool
-- Operações CRUD otimizadas
-- Proteção contra SQL Injection via prepared statements
-- Transações e rollback automático
-- Tratamento robusto de erros
+- Conexão e gerenciamento de chamadas
+- Operações CRUD
+- Proteção contra SQL Injection
 
-#### interface.c
-Componentes e widgets customizados:
+#### `interface.c`
+Componentes gráficos reutilizáveis:
 - Elementos visuais especializados
 - Helpers para manipulação de GTK
 - Utilitários de formatação e apresentação
 
-#### app.glade
-Interface declarativa criada com Glade:
-- Layouts responsivos
-- Hierarquia de widgets bem estruturada
-- Separação clara entre apresentação e lógica
-- Facilita manutenção e internacionalização
-
-### Fluxograma
-
-```
-[Interface GTK] ←→ [main.c] ←→ [database.c] ←→ [MySQL Server]
-       ↑              ↑              ↑
-   Eventos      Lógica de      Persistência
-   do Usuário   Negócio        de Dados
-```
+#### `app.glade`
+Arquivo da Interface gráfica da aplicação criada apartir do editor Glade
 
 ---
 
-## Manual de Uso
+## Manual de Utilização
 
-### Credenciais Padrão
-
-Após executar o script `init.sql`, o sistema disponibiliza uma conta `admin` nível GESTOR com senha `password`
-
-### Colaborador
+### Painel do Colaborador
 
 #### Dashboard Principal
 
-Ao fazer login como colaborador, você terá acesso a:
+<div align="center">
+<img width="486" height="704" alt="image" src="https://github.com/user-attachments/assets/93590669-1751-4b83-bdc6-6dec380262bd" />
+</div>
 
-**Informações do Saldo**
-- Visualização destacada do saldo atual de horas extras
-- Indicador visual da carga horária semanal contratada
-- Atualização automática após cada operação
+**Saldo no banco de horas**
+
+Visualização destacada do saldo atual de horas extras com indicador visual da carga horária semanal contratada.
 
 **Lista de Requerimentos**
-- Histórico completo de todas as solicitações
-- Status atualizado (Pendente, Aprovado, Negado)
-- Detalhes de data, quantidade de horas e observações
-- Ordenação cronológica inversa (mais recentes primeiro)
+
+Histórico completo de todas as solicitações com detalhes de data, quantidade de horas e observações, todas com ordenação cronológica inversa.
 
 #### Criação de Requerimentos
 
-Acesse através do botão **"Novo requerimento"** no dashboard:
+<div align="center">
+<img width="521" height="698" alt="image" src="https://github.com/user-attachments/assets/a15ff79d-d599-444e-942d-ea17bee5c8e7" />
+</div>
 
-**1. Seleção de Data**
-- Calendário interativo para escolha da data desejada
-- Destaque visual da data selecionada
-- Validação automática de datas passadas
+**Formulário de requerimento**
 
-**2. Definição de Horas**
-- Controle deslizante limitado ao saldo disponível
-- Indicador numérico em tempo real
-- Prevenção de valores inválidos
-
-**3. Observações (Opcional)**
-- Campo de texto para comunicação com o gestor
-- Suporte a múltiplas linhas
-- Contexto adicional sobre a solicitação
-
-**4. Validações Automáticas**
-O sistema verifica automaticamente:
-- Disponibilidade de saldo suficiente
-- Horário de funcionamento do sistema
-- Completude dos dados obrigatórios
-- Validade da data selecionada (apenas datas futuras são permitidas)
-- Prevenção de seleção de datas passadas ou do dia atual
+Calendário interativo fácil escolha da data desejada e com validação automática de datas passadas. Controle deslizante de horas Limitado ao saldo disponível e campo de texto para comunicação direta com o gestor.
 
 **Restrições de Horário**
-O botão de novo requerimento é automaticamente desabilitado quando:
-- O horário atual ultrapassa 18:00
-- O colaborador não possui saldo disponível
-- Mensagens informativas substituem o botão padrão
+O botão de novo requerimento é automaticamente desabilitado quando o horário atual ultrapassa o expediente ou então o colaborador não possui saldo disponível.
 
-#### Estados do Botão de Requerimento
 
-| Estado | Mensagem | Disponibilidade |
-|--------|----------|-----------------|
-| Normal | "Novo requerimento" | Habilitado |
-| Fora de horário | "Sistema fechado" | Desabilitado |
-| Sem saldo | "Sem saldo disponível" | Desabilitado |
+### Painel Admistrativo
 
-### Gestor
+#### Dashboard Principal
 
-#### Dashboard Administrativo
+<div align="center">
+<img width="428" height="698" alt="image" src="https://github.com/user-attachments/assets/afacf3bd-c720-40b3-b1ed-bd8f5fa1e261" />
+</div>
 
-Interface especializada para gestores com:
+**Ações rápidas**
 
-**Indicadores**
-- Contador de requerimentos pendentes de análise
-- Estatísticas em tempo real
-- Acesso rápido às principais funcionalidades
-
-**Ações Disponíveis**
-- Gerenciamento de colaboradores
-- Análise de requerimentos
-- Configurações do sistema
+Contador de requerimentos pendentes de análise, botão para gerenciamento de colaboradores e análise de requerimentos.
 
 #### Gestão de Colaboradores
 
-Painel completo de administração de usuários:
+<div align="center">
+<img width="593" height="703" alt="image" src="https://github.com/user-attachments/assets/87f72b91-98d5-4bb2-9250-16118bae0a80" />
+</div>
 
-**Listar Colaboradores**
-- Visualização de todos os usuários cadastrados
-- Informações de ID e nome de usuário
-- Ações rápidas de edição e exclusão
+**Listagem de Colaboradores cadastrados**
 
-**Criar Novo Colaborador**
-Campos obrigatórios:
-- Nome de usuário (único no sistema)
-- Senha de acesso
-- Nível de acesso (Colaborador ou Gestor)
-- Carga horária semanal
-
-**Editar Colaborador Existente**
-- Atualização de todos os dados cadastrais
-- Alteração de nível de acesso
-- Redefinição de senha
-- Ajuste de carga horária
-
-**Excluir Colaborador**
-- Confirmação obrigatória antes da exclusão
-- Remoção em cascata de requerimentos associados
-- Operação irreversível
+Visualização simples de informações como ID e nome de usuário, e ações de adimistração como edição nome, senha e carga horária de usuários, exclusão de dados relacionados e cadastro de novos colaboradores, todos com janelas de confirmação.
 
 #### Gestão de Requerimentos
 
-Interface dedicada para análise de solicitações:
+<div align="center">
+<img width="574" height="706" alt="image" src="https://github.com/user-attachments/assets/a7dceb37-0826-465f-a320-121ab08f7e44" />
+</div>
 
 **Visualização Detalhada**
-Cada requerimento exibe:
-- Nome do colaborador solicitante
-- Data da folga solicitada
-- Quantidade de horas requisitadas
-- Observações adicionais
-- Status atual da solicitação
 
-**Ações de Aprovação**
+Interface dedicada para análise de solicitações, com exibição de todos os dados associados e botões para aprovação ou negação do pedido de horas de folga, com desconto automático da conta do colaborador em caso de deferimento.
 
-Para requerimentos pendentes, o gestor pode:
-
-**Aprovar Requerimento**
-- Confirmação via diálogo de segurança
-- Dedução automática do saldo do colaborador
-- Atualização do status para "Aprovado"
-- Notificação visual de sucesso
-
-**Negar Requerimento**
-- Confirmação via diálogo de segurança
-- Manutenção do saldo do colaborador
-- Atualização do status para "Negado"
-- Registro permanente da decisão
-
-**Atualização de Saldo**
-Quando aprovado, o sistema:
-1. Deduz as horas do saldo do colaborador
-2. Garante que o saldo não fique negativo
-3. Atualiza o status do requerimento
-4. Registra timestamp da operação
-
----
-
-## Segurança
-
-### Proteção Contra SQL Injection
-
-O sistema implementa múltiplas camadas de proteção:
-
-**Escape de Strings**
-```c
-char escaped_username[256];
-mysql_real_escape_string(socket, escaped_username, username, strlen(username));
-```
-
-**Validação de Entrada**
-- Sanitização de todos os dados do usuário
-- Verificação de tipos e tamanhos
-- Rejeição de caracteres especiais perigosos
-
-**Prepared Statements**
-- Separação entre lógica e dados
-- Prevenção de injeção maliciosa
-- Performance otimizada
-
-### Controle de Acesso
-
-**Hierarquia de Permissões**
-- Colaboradores: Acesso limitado às próprias informações
-- Gestores: Acesso completo a funcionalidades administrativas
-
-**Autenticação**
-- Senhas armazenadas de forma segura
-- Validação de credenciais no servidor
-- Sessões gerenciadas em memória
-
-### Validações de dadps
-
-**Integridade de Dados**
-- Verificação de saldo antes de aprovações
-- Prevenção de valores negativos
-- Garantia de consistência transacional
-- Bloqueio de datas passadas ou do dia atual em requerimentos
-- Limite de horas no slider baseado no saldo disponível do colaborador
 ---
 
 ## Configurações
 
-### Ajuste de Horário do Sistema
+### Aplicação
 
 O horário limite de abertura de requerimentos, se encontra em `main.c`:
 
@@ -397,9 +224,9 @@ O horário limite de abertura de requerimentos, se encontra em `main.c`:
 #define SYSTEM_CLOSE_MINUTE 0
 ```
 
-### Configuração de Conexão MySQL
+### Banco de dados
 
-Ajuste as credenciais em `database.h` conforme seu ambiente:
+As credenciais de conexão ao banco de dados se encontram no cabeçalho `database.h`:
 
 ```c
 #define DATABASE_ADDRESS "localhost"  // Endereço do servidor
@@ -408,44 +235,6 @@ Ajuste as credenciais em `database.h` conforme seu ambiente:
 #define DATABASE_NAME "pineapple"     // Nome do database
 #define DATABASE_PORT 3306            // Porta de conexão
 ```
-
-## Solução de problemas
-
-### Erro de Conexão MySQL
-
-**Sintoma**: "Erro ao conectar: Can't connect to MySQL server"
-
-**Soluções**:
-1. Verifique se o serviço MySQL está rodando
-2. Confirme as credenciais em `database.h`
-3. Teste a conexão via MySQL Command Line
-4. Verifique permissões do usuário MySQL
-
-### Erro de Compilação GTK
-
-**Sintoma**: "gtk/gtk.h: No such file or directory"
-
-**Soluções**:
-1. Reinstale as dependências GTK via MSYS2
-2. Verifique a variável PATH do sistema
-3. Execute `pkg-config --cflags gtk+-3.0` para testar
-4. Reinicie a IDE após alterações
-
-### Interface Não Carrega
-
-**Sintoma**: "Erro ao carregar interface: Duplicate object ID"
-
-**Solução**:
-Verifique se há IDs duplicados no arquivo `app.glade`. Cada objeto precisa ter um ID único.
-
-### Erros de Linkagem MySQL
-
-**Sintoma**: "undefined reference to mysql_*"
-
-**Solução**:
-Adicione `-lmysqlclient` nas opções de linkagem do compilador.
-
----
 
 ## Referências
 
