@@ -145,7 +145,7 @@ void on_approve_request_clicked(GtkButton *button, gpointer user_data) {
     GtkWindow *main_window = GTK_WINDOW(gtk_builder_get_object(app_data.builder, "main_window"));
     if (show_confirm_dialog(main_window, "Deseja aprovar este requerimento?")) {
         answer_request(app_data.db, "APROVADO", request_id);
-        show_info_dialog(main_window, "Requerimento aprovado com sucesso!");
+        show_info_dialog(main_window, "Requerimento aprovado.");
 
         // Recarrega lista
         on_manage_requests_clicked(NULL, NULL);
@@ -202,7 +202,7 @@ void on_edit_user_clicked(GtkButton *button, gpointer user_data) {
             update_user(app_data.db, user_id, new_username, new_password, new_role, new_hours);
 
             GtkWindow *main_window = GTK_WINDOW(gtk_builder_get_object(app_data.builder, "main_window"));
-            show_info_dialog(main_window, "Usuário atualizado com sucesso!");
+            show_info_dialog(main_window, "Sucesso!");
 
             // Recarregar lista
             on_manage_users_clicked(NULL, NULL);
@@ -220,7 +220,7 @@ void on_delete_user_clicked(GtkButton *button, gpointer user_data) {
     GtkWindow *main_window = GTK_WINDOW(gtk_builder_get_object(app_data.builder, "main_window"));
     if (show_confirm_dialog(main_window, "Tem certeza que deseja deletar este usuário?")) {
         delete_user(app_data.db, user_id);
-        show_info_dialog(main_window, "Usuário deletado com sucesso!");
+        show_info_dialog(main_window, "Sucesso!");
 
         // Recarrega lista
         on_manage_users_clicked(NULL, NULL);
@@ -337,7 +337,7 @@ void on_manage_users_clicked(GtkButton *button, gpointer user_data) {
         gtk_widget_set_hexpand(label, TRUE);
 
         GtkWidget *edit_btn = gtk_button_new_with_label("Editar");
-        GtkWidget *delete_btn = gtk_button_new_with_label("Deletar");
+        GtkWidget *delete_btn = gtk_button_new_with_label("Excluir");
 
         gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(delete_btn)), "destructive-action");
 
@@ -451,7 +451,7 @@ void on_submit_request_clicked(GtkButton *button, gpointer user_data) {
 
     guint year, month, day;
     gtk_calendar_get_date(calendar, &year, &month, &day);
-    month++; // Meses no GTK começam em zero
+    month++;
 
     time_t now = time(NULL);
     struct tm *current_time = localtime(&now);
@@ -469,19 +469,14 @@ void on_submit_request_clicked(GtkButton *button, gpointer user_data) {
     today_timestamp = mktime(current_time);
 
     if (selected_timestamp <= today_timestamp) {
-        gtk_label_set_markup(output, "<span foreground='red'>Selecione uma data futura (a partir de amanhã).</span>");
+        gtk_label_set_markup(output, "<span foreground='red'>Data inválida!</span>");
         return;
     }
 
     double hours = gtk_range_get_value(GTK_RANGE(slider));
 
-    if (hours <= 0) {
-        gtk_label_set_markup(output, "<span foreground='red'>Selecione uma quantidade de horas válida.</span>");
-        return;
-    }
-
-    if (hours > app_data.current_overtime) {
-        gtk_label_set_markup(output, "<span foreground='red'>Você não possui horas suficientes no banco.</span>");
+    if (!hours) {
+        gtk_label_set_markup(output, "<span foreground='red'>Preencha todos os campos!</span>");
         return;
     }
 
@@ -493,22 +488,18 @@ void on_submit_request_clicked(GtkButton *button, gpointer user_data) {
     char date[32];
     snprintf(date, sizeof(date), "%04d-%02d-%02d", year, month, day);
 
-    int success = create_time_off_request(app_data.db, app_data.current_user_id, date, hours, notes);
+    create_time_off_request(app_data.db, app_data.current_user_id, date, hours, notes);
 
     g_free(notes);
 
-    if (success) {
-        gtk_label_set_markup(output, "<span foreground='green'>Requerimento enviado com sucesso!</span>");
+    gtk_label_set_markup(output, "<span foreground='green'>Sucesso!</span>");
 
-        g_timeout_add(500, return_to_dashboard, NULL);
-    } else {
-        gtk_label_set_markup(output, "<span foreground='red'>Erro ao enviar requerimento.</span>");
-    }
+    g_timeout_add(500, return_to_dashboard, NULL);
 }
 
 void on_create_user_clicked(GtkButton *button, gpointer user_data) {
     GtkDialog *dialog = GTK_DIALOG(gtk_builder_get_object(app_data.builder, "user_edit_dialog"));
-    gtk_window_set_title(GTK_WINDOW(dialog), "Criar Novo Usuário");
+    gtk_window_set_title(GTK_WINDOW(dialog), "Novo Usuário");
 
     // Limpa campos
     GtkEntry *username = GTK_ENTRY(gtk_builder_get_object(app_data.builder, "entry_username"));
@@ -533,7 +524,7 @@ void on_create_user_clicked(GtkButton *button, gpointer user_data) {
             create_user(app_data.db, user, pass, role_text, work_hours);
 
             GtkWindow *main_window = GTK_WINDOW(gtk_builder_get_object(app_data.builder, "main_window"));
-            show_info_dialog(main_window, "Usuário criado com sucesso!");
+            show_info_dialog(main_window, "Sucesso!");
 
             // Recarrega lista
             on_manage_users_clicked(NULL, NULL);
