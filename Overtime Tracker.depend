@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1763858033 source:c:\users\otavioaugustus\desktop\overtime-tracker\src\main.c
+1764084798 source:c:\users\otavioaugustus\desktop\overtime-tracker\src\main.c
 	<gtk/gtk.h>
 	<mysql.h>
 	<stdio.h>

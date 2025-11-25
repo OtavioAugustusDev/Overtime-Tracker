@@ -22,7 +22,7 @@ typedef struct {
 
 AppData app_data;
 
-#define SYSTEM_CLOSE_HOUR 18
+#define SYSTEM_CLOSE_HOUR 99
 #define SYSTEM_CLOSE_MINUTE 0
 
 bool is_system_closed() {
@@ -265,11 +265,6 @@ void on_login_button_clicked(GtkButton *button, gpointer user_data) {
             }
 
             gtk_widget_show(GTK_WIDGET(main_window));
-
-            /*
-            gtk_entry_set_text(username_entry, "");
-            gtk_entry_set_text(password_entry, "");
-            gtk_label_set_text(output_label, "");*/
         }
     } else {
         gtk_label_set_text(output_label, "Credenciais inválidas.");
@@ -405,8 +400,8 @@ void on_manage_requests_clicked(GtkButton *button, gpointer user_data) {
         if (strcmp(status, "PENDENTE") == 0) {
             GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
 
-            GtkWidget *approve_btn = gtk_button_new_with_label("✅ Aprovar");
-            GtkWidget *reject_btn = gtk_button_new_with_label("❌ Negar");
+            GtkWidget *approve_btn = gtk_button_new_with_label("Deferir");
+            GtkWidget *reject_btn = gtk_button_new_with_label("Indeferir");
 
             gtk_style_context_add_class(gtk_widget_get_style_context(approve_btn), "suggested-action");
             gtk_style_context_add_class(gtk_widget_get_style_context(reject_btn), "destructive-action");
@@ -623,6 +618,8 @@ int main() {
     g_signal_connect(login_window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
     g_signal_connect(main_window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
+    gtk_window_set_default_icon_from_file("icon.png", NULL);
+
     gtk_widget_show(GTK_WIDGET(login_window));
     gtk_main();
 
@@ -630,3 +627,4 @@ int main() {
 
     return 0;
 }
+
