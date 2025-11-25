@@ -203,12 +203,7 @@ Interface declarativa criada com Glade:
 
 ### Credenciais Padrão
 
-Após executar o script `init.sql`, o sistema disponibiliza duas contas de teste:
-
-| Usuário | Senha | Nível de Acesso | Saldo Inicial |
-|---------|-------|-----------------|---------------|
-| otavio  | 1234  | GESTOR          | 0.00h |
-| breno   | 1234  | COLABORADOR     | 25.50h |
+Após executar o script `init.sql`, o sistema disponibiliza uma conta `admin` nível GESTOR com senha `password`
 
 ### Colaborador
 
